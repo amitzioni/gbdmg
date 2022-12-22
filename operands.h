@@ -1,4 +1,4 @@
-// op_sym.h - CPU instructions operands symbols (used also by the registers)
+// operands.h - CPU instructions operands enum (used also by the registers)
 
 #ifndef OP_SYM_H
 #define OP_SYM_H
@@ -46,6 +46,6 @@ typedef enum{
     // EMPTY enum for padding instructions with less than 2 arguments
     EMPTY,
 
-}op_symbol;
+}operand;
 
 #endif
