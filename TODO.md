@@ -1,6 +1,6 @@
 # TODO List for Gameboy DMG Emulator
 
-- [ ] Implement CPU Registers + CPU Flags 
+- [X] Implement CPU Registers + CPU Flags 
 - [ ] Implement Memory Map
     - [ ] No MBC
     - [ ] MBC 1
