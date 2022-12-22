@@ -1,7 +1,7 @@
 // operands.h - CPU instructions operands enum (used also by the registers)
 
-#ifndef OP_SYM_H
-#define OP_SYM_H
+#ifndef OPERANDS_H
+#define OPERANDS_H
 
 typedef enum{
     // Registers
