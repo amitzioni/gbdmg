@@ -3,55 +3,9 @@
 #define INSTRUCTIONS_H
 
 #include "operands.h"
-typedef enum{
-    LD = 0,
-    INC,
-    DEC,
-    ADD,
-    ADC,
-    SUB,
-    SBC,
-    XOR,
-    AND,
-    OR,
-    CP,
-    JP,
-    JR,
-    PUSH,
-    POP,
-    CALL,
-    RET,
-    RETI,
-    RST,
-    DAA,
-    CPL,
-    SCF,
-    CCF,
-    DI,
-    EI,
-    NOP,
-    STOP,
-    HALT,
-    RLA,
-    RRA,
-    RLCA,
-    RRCA,
-    RLC,
-    RRC,
-    RL,
-    RR,
-    SLA,
-    SRA,
-    SRL,
-    SWAP,
-    BIT,
-    RES,
-    SET,
-
-}inst_name;
 
 typedef struct{
-    inst_name opr;
+    void (*op_func)(operand,operand);
     operand op1;
     operand op2;
 }instruction;
