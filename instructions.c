@@ -1,586 +1,637 @@
 #include "operands.h"
 #include "instructions.h"
+#include "cpu.h"
 
 // Normal Instructions         
 const instruction normal_inst[0x100] = {
-   [0x0A] = { LD, REG_A, MEM_REG_BC }, // | 1--8 | - - - -
-   [0x1A] = { LD, REG_A, MEM_REG_DE }, // | 1--8 | - - - -
-   [0x2A] = { LD, REG_A, MEM_REG_HL_PLUS }, // | 1--8 | - - - -
-   [0x3A] = { LD, REG_A, MEM_REG_HL_MINUS }, // | 1--8 | - - - -
-   [0x3E] = { LD, REG_A, IMM8 }, // | 2--8 | - - - -
-   [0x01] = { LD, REG_BC, IMM16 }, // | 3--12 | - - - -
-   [0x11] = { LD, REG_DE, IMM16 }, // | 3--12 | - - - -
-   [0x21] = { LD, REG_HL, IMM16 }, // | 3--12 | - - - -
-   [0x31] = { LD, REG_SP, IMM16 }, // | 3--12 | - - - -
-   [0x06] = { LD, REG_B, IMM8 }, // | 2--8 | - - - -
-   [0x0E] = { LD, REG_C, IMM8 }, // | 2--8 | - - - -
-   [0x16] = { LD, REG_D, IMM8 }, // | 2--8 | - - - -
-   [0x1E] = { LD, REG_E, IMM8 }, // | 2--8 | - - - -
-   [0x26] = { LD, REG_H, IMM8 }, // | 2--8 | - - - -
-   [0x2E] = { LD, REG_L, IMM8 }, // | 2--8 | - - - -
-   [0x36] = { LD, MEM_REG_HL, IMM8 }, // | 2--12 | - - - -
-   [0x40] = { LD, REG_B, REG_B }, // | 1--4 | - - - -
-   [0x41] = { LD, REG_B, REG_C }, // | 1--4 | - - - -
-   [0x42] = { LD, REG_B, REG_D }, // | 1--4 | - - - -
-   [0x43] = { LD, REG_B, REG_E }, // | 1--4 | - - - -
-   [0x44] = { LD, REG_B, REG_H }, // | 1--4 | - - - -
-   [0x45] = { LD, REG_B, REG_L }, // | 1--4 | - - - -
-   [0x47] = { LD, REG_B, REG_A }, // | 1--4 | - - - -
-   [0x48] = { LD, REG_C, REG_B }, // | 1--4 | - - - -
-   [0x49] = { LD, REG_C, REG_C }, // | 1--4 | - - - -
-   [0x4A] = { LD, REG_C, REG_D }, // | 1--4 | - - - -
-   [0x4B] = { LD, REG_C, REG_E }, // | 1--4 | - - - -
-   [0x4C] = { LD, REG_C, REG_H }, // | 1--4 | - - - -
-   [0x4D] = { LD, REG_C, REG_L }, // | 1--4 | - - - -
-   [0x4F] = { LD, REG_C, REG_A }, // | 1--4 | - - - -
-   [0x50] = { LD, REG_D, REG_B }, // | 1--4 | - - - -
-   [0x51] = { LD, REG_D, REG_C }, // | 1--4 | - - - -
-   [0x52] = { LD, REG_D, REG_D }, // | 1--4 | - - - -
-   [0x53] = { LD, REG_D, REG_E }, // | 1--4 | - - - -
-   [0x54] = { LD, REG_D, REG_H }, // | 1--4 | - - - -
-   [0x55] = { LD, REG_D, REG_L }, // | 1--4 | - - - -
-   [0x57] = { LD, REG_D, REG_A }, // | 1--4 | - - - -
-   [0x58] = { LD, REG_E, REG_B }, // | 1--4 | - - - -
-   [0x59] = { LD, REG_E, REG_C }, // | 1--4 | - - - -
-   [0x5A] = { LD, REG_E, REG_D }, // | 1--4 | - - - -
-   [0x5B] = { LD, REG_E, REG_E }, // | 1--4 | - - - -
-   [0x5C] = { LD, REG_E, REG_H }, // | 1--4 | - - - -
-   [0x5D] = { LD, REG_E, REG_L }, // | 1--4 | - - - -
-   [0x5F] = { LD, REG_E, REG_A }, // | 1--4 | - - - -
-   [0x60] = { LD, REG_H, REG_B }, // | 1--4 | - - - -
-   [0x61] = { LD, REG_H, REG_C }, // | 1--4 | - - - -
-   [0x62] = { LD, REG_H, REG_D }, // | 1--4 | - - - -
-   [0x63] = { LD, REG_H, REG_E }, // | 1--4 | - - - -
-   [0x64] = { LD, REG_H, REG_H }, // | 1--4 | - - - -
-   [0x65] = { LD, REG_H, REG_L }, // | 1--4 | - - - -
-   [0x67] = { LD, REG_H, REG_A }, // | 1--4 | - - - -
-   [0x68] = { LD, REG_L, REG_B }, // | 1--4 | - - - -
-   [0x69] = { LD, REG_L, REG_C }, // | 1--4 | - - - -
-   [0x6A] = { LD, REG_L, REG_D }, // | 1--4 | - - - -
-   [0x6B] = { LD, REG_L, REG_E }, // | 1--4 | - - - -
-   [0x6C] = { LD, REG_L, REG_H }, // | 1--4 | - - - -
-   [0x6D] = { LD, REG_L, REG_L }, // | 1--4 | - - - -
-   [0x6F] = { LD, REG_L, REG_A }, // | 1--4 | - - - -
-   [0x78] = { LD, REG_A, REG_B }, // | 1--4 | - - - -
-   [0x79] = { LD, REG_A, REG_C }, // | 1--4 | - - - -
-   [0x7A] = { LD, REG_A, REG_D }, // | 1--4 | - - - -
-   [0x7B] = { LD, REG_A, REG_E }, // | 1--4 | - - - -
-   [0x7C] = { LD, REG_A, REG_H }, // | 1--4 | - - - -
-   [0x7D] = { LD, REG_A, REG_L }, // | 1--4 | - - - -
-   [0x7F] = { LD, REG_A, REG_A }, // | 1--4 | - - - -
-   [0x46] = { LD, REG_B, MEM_REG_HL }, // | 1--8 | - - - -
-   [0x4E] = { LD, REG_C, MEM_REG_HL }, // | 1--8 | - - - -
-   [0x56] = { LD, REG_D, MEM_REG_HL }, // | 1--8 | - - - -
-   [0x5E] = { LD, REG_E, MEM_REG_HL }, // | 1--8 | - - - -
-   [0x66] = { LD, REG_H, MEM_REG_HL }, // | 1--8 | - - - -
-   [0x6E] = { LD, REG_L, MEM_REG_HL }, // | 1--8 | - - - -
-   [0x7E] = { LD, REG_A, MEM_REG_HL }, // | 1--8 | - - - -
-   [0x70] = { LD, MEM_REG_HL, REG_B }, // | 1--8 | - - - -
-   [0x71] = { LD, MEM_REG_HL, REG_C }, // | 1--8 | - - - -
-   [0x72] = { LD, MEM_REG_HL, REG_D }, // | 1--8 | - - - -
-   [0x73] = { LD, MEM_REG_HL, REG_E }, // | 1--8 | - - - -
-   [0x74] = { LD, MEM_REG_HL, REG_H }, // | 1--8 | - - - -
-   [0x75] = { LD, MEM_REG_HL, REG_L }, // | 1--8 | - - - -
-   [0x77] = { LD, MEM_REG_HL, REG_A }, // | 1--8 | - - - -
+    // Load (LD) instructions
+   [0x40] = { ldFunction, REG_B, REG_B }, // | 1--4 | - - - -
+   [0x41] = { ldFunction, REG_B, REG_C }, // | 1--4 | - - - -
+   [0x42] = { ldFunction, REG_B, REG_D }, // | 1--4 | - - - -
+   [0x43] = { ldFunction, REG_B, REG_E }, // | 1--4 | - - - -
+   [0x44] = { ldFunction, REG_B, REG_H }, // | 1--4 | - - - -
+   [0x45] = { ldFunction, REG_B, REG_L }, // | 1--4 | - - - -
+   [0x47] = { ldFunction, REG_B, REG_A }, // | 1--4 | - - - -
+   [0x48] = { ldFunction, REG_C, REG_B }, // | 1--4 | - - - -
+   [0x49] = { ldFunction, REG_C, REG_C }, // | 1--4 | - - - -
+   [0x4A] = { ldFunction, REG_C, REG_D }, // | 1--4 | - - - -
+   [0x4B] = { ldFunction, REG_C, REG_E }, // | 1--4 | - - - -
+   [0x4C] = { ldFunction, REG_C, REG_H }, // | 1--4 | - - - -
+   [0x4D] = { ldFunction, REG_C, REG_L }, // | 1--4 | - - - -
+   [0x4F] = { ldFunction, REG_C, REG_A }, // | 1--4 | - - - -
+   [0x50] = { ldFunction, REG_D, REG_B }, // | 1--4 | - - - -
+   [0x51] = { ldFunction, REG_D, REG_C }, // | 1--4 | - - - -
+   [0x52] = { ldFunction, REG_D, REG_D }, // | 1--4 | - - - -
+   [0x53] = { ldFunction, REG_D, REG_E }, // | 1--4 | - - - -
+   [0x54] = { ldFunction, REG_D, REG_H }, // | 1--4 | - - - -
+   [0x55] = { ldFunction, REG_D, REG_L }, // | 1--4 | - - - -
+   [0x57] = { ldFunction, REG_D, REG_A }, // | 1--4 | - - - -
+   [0x58] = { ldFunction, REG_E, REG_B }, // | 1--4 | - - - -
+   [0x59] = { ldFunction, REG_E, REG_C }, // | 1--4 | - - - -
+   [0x5A] = { ldFunction, REG_E, REG_D }, // | 1--4 | - - - -
+   [0x5B] = { ldFunction, REG_E, REG_E }, // | 1--4 | - - - -
+   [0x5C] = { ldFunction, REG_E, REG_H }, // | 1--4 | - - - -
+   [0x5D] = { ldFunction, REG_E, REG_L }, // | 1--4 | - - - -
+   [0x5F] = { ldFunction, REG_E, REG_A }, // | 1--4 | - - - -
+   [0x60] = { ldFunction, REG_H, REG_B }, // | 1--4 | - - - -
+   [0x61] = { ldFunction, REG_H, REG_C }, // | 1--4 | - - - -
+   [0x62] = { ldFunction, REG_H, REG_D }, // | 1--4 | - - - -
+   [0x63] = { ldFunction, REG_H, REG_E }, // | 1--4 | - - - -
+   [0x64] = { ldFunction, REG_H, REG_H }, // | 1--4 | - - - -
+   [0x65] = { ldFunction, REG_H, REG_L }, // | 1--4 | - - - -
+   [0x67] = { ldFunction, REG_H, REG_A }, // | 1--4 | - - - -
+   [0x68] = { ldFunction, REG_L, REG_B }, // | 1--4 | - - - -
+   [0x69] = { ldFunction, REG_L, REG_C }, // | 1--4 | - - - -
+   [0x6A] = { ldFunction, REG_L, REG_D }, // | 1--4 | - - - -
+   [0x6B] = { ldFunction, REG_L, REG_E }, // | 1--4 | - - - -
+   [0x6C] = { ldFunction, REG_L, REG_H }, // | 1--4 | - - - -
+   [0x6D] = { ldFunction, REG_L, REG_L }, // | 1--4 | - - - -
+   [0x6F] = { ldFunction, REG_L, REG_A }, // | 1--4 | - - - -
+   [0x78] = { ldFunction, REG_A, REG_B }, // | 1--4 | - - - -
+   [0x79] = { ldFunction, REG_A, REG_C }, // | 1--4 | - - - -
+   [0x7A] = { ldFunction, REG_A, REG_D }, // | 1--4 | - - - -
+   [0x7B] = { ldFunction, REG_A, REG_E }, // | 1--4 | - - - -
+   [0x7C] = { ldFunction, REG_A, REG_H }, // | 1--4 | - - - -
+   [0x7D] = { ldFunction, REG_A, REG_L }, // | 1--4 | - - - -
+   [0x7F] = { ldFunction, REG_A, REG_A }, // | 1--4 | - - - -
+   [0xF9] = { ldFunction, REG_SP, REG_HL }, // | 1--8 | - - - -
 
-   [0xE0] = { LD, MEM_IMM8, REG_A }, // | 2--12 | - - - -
-   [0xF0] = { LD, REG_A, MEM_IMM8 }, // | 2--12 | - - - -
-   [0xE2] = { LD, MEM_REG_C, REG_A }, // | 2--8 | - - - -
-   [0xF2] = { LD, REG_A, MEM_REG_C }, // | 2--8 | - - - -
-   [0xF8] = { LD, REG_HL, REG_SP_PLUS_SIMM8}, // | 2--12 | 0 0 H C
-   [0xF9] = { LD, REG_SP, REG_HL }, // | 1--8 | - - - -
-   [0x02] = { LD, MEM_REG_BC, REG_A }, // | 1--8 | - - - -
-   [0x12] = { LD, MEM_REG_DE, REG_A }, // | 1--8 | - - - -
-   [0x22] = { LD, MEM_REG_HL_PLUS, REG_A }, // | 1--8 | - - - -
-   [0x32] = { LD, MEM_REG_HL_MINUS, REG_A }, // | 1--8 | - - - -
-   [0xFA] = { LD, REG_A, MEM_IMM16 }, // | 3--16 | - - - -
-   [0x08] = { LD, MEM_IMM16, REG_SP }, // | 3--20 | - - - -
-   [0xEA] = { LD, MEM_IMM16, REG_A }, // | 3--16 | - - - -
+   [0x46] = { ldFunction, REG_B, MEM_REG_HL }, // | 1--8 | - - - -
+   [0x4E] = { ldFunction, REG_C, MEM_REG_HL }, // | 1--8 | - - - -
+   [0x56] = { ldFunction, REG_D, MEM_REG_HL }, // | 1--8 | - - - -
+   [0x5E] = { ldFunction, REG_E, MEM_REG_HL }, // | 1--8 | - - - -
+   [0x66] = { ldFunction, REG_H, MEM_REG_HL }, // | 1--8 | - - - -
+   [0x6E] = { ldFunction, REG_L, MEM_REG_HL }, // | 1--8 | - - - -
+   [0x7E] = { ldFunction, REG_A, MEM_REG_HL }, // | 1--8 | - - - -
+   [0x0A] = { ldFunction, REG_A, MEM_REG_BC }, // | 1--8 | - - - -
+   [0x1A] = { ldFunction, REG_A, MEM_REG_DE }, // | 1--8 | - - - -
+   [0xFA] = { ldFunction, REG_A, MEM_IMM16 }, // | 3--16 | - - - -
+   [0x2A] = { ldFunction, REG_A, MEM_REG_HL_PLUS }, // | 1--8 | - - - -
+   [0x3A] = { ldFunction, REG_A, MEM_REG_HL_MINUS }, // | 1--8 | - - - -
+   [0xF2] = { ldFunction, REG_A, MEM_REG_C }, // | 2--8 | - - - -
+   [0xF0] = { ldFunction, REG_A, MEM_IMM8 }, // | 2--12 | - - - -
 
 
-   [0x04] = { INC, REG_B , EMPTY }, // | 1--4 | Z 0 H -
-   [0x0C] = { INC, REG_C , EMPTY }, // | 1--4 | Z 0 H -
-   [0x14] = { INC, REG_D , EMPTY }, // | 1--4 | Z 0 H -
-   [0x1C] = { INC, REG_E , EMPTY }, // | 1--4 | Z 0 H -
-   [0x24] = { INC, REG_H , EMPTY }, // | 1--4 | Z 0 H -
-   [0x2C] = { INC, REG_L , EMPTY }, // | 1--4 | Z 0 H -
-   [0x3C] = { INC, REG_A , EMPTY }, // | 1--4 | Z 0 H -
-   [0x34] = { INC, MEM_REG_HL, EMPTY }, // | 1--12 | Z 0 H -
-   [0x03] = { INC, REG_BC, EMPTY }, // | 1--8 | - - - -
-   [0x13] = { INC, REG_DE, EMPTY }, // | 1--8 | - - - -
-   [0x23] = { INC, REG_HL, EMPTY }, // | 1--8 | - - - -
-   [0x33] = { INC, REG_SP, EMPTY }, // | 1--8 | - - - -
+   [0x70] = { ldFunction, MEM_REG_HL, REG_B }, // | 1--8 | - - - -
+   [0x71] = { ldFunction, MEM_REG_HL, REG_C }, // | 1--8 | - - - -
+   [0x72] = { ldFunction, MEM_REG_HL, REG_D }, // | 1--8 | - - - -
+   [0x73] = { ldFunction, MEM_REG_HL, REG_E }, // | 1--8 | - - - -
+   [0x74] = { ldFunction, MEM_REG_HL, REG_H }, // | 1--8 | - - - -
+   [0x75] = { ldFunction, MEM_REG_HL, REG_L }, // | 1--8 | - - - -
+   [0x77] = { ldFunction, MEM_REG_HL, REG_A }, // | 1--8 | - - - -
+   [0x36] = { ldFunction, MEM_REG_HL, IMM8 }, // | 2--12 | - - - -
+   [0x02] = { ldFunction, MEM_REG_BC, REG_A }, // | 1--8 | - - - -
+   [0x12] = { ldFunction, MEM_REG_DE, REG_A }, // | 1--8 | - - - -
+   [0xE2] = { ldFunction, MEM_REG_C, REG_A }, // | 2--8 | - - - -
+   [0xE0] = { ldFunction, MEM_IMM8, REG_A }, // | 2--12 | - - - -
+   [0x22] = { ldFunction, MEM_REG_HL_PLUS, REG_A }, // | 1--8 | - - - -
+   [0x32] = { ldFunction, MEM_REG_HL_MINUS, REG_A }, // | 1--8 | - - - -
+   [0x08] = { ldFunction, MEM_IMM16, REG_SP }, // | 3--20 | - - - -
+   [0xEA] = { ldFunction, MEM_IMM16, REG_A }, // | 3--16 | - - - -
+
+   [0x3E] = { ldFunction, REG_A, IMM8 }, // | 2--8 | - - - -
+   [0x06] = { ldFunction, REG_B, IMM8 }, // | 2--8 | - - - -
+   [0x0E] = { ldFunction, REG_C, IMM8 }, // | 2--8 | - - - -
+   [0x16] = { ldFunction, REG_D, IMM8 }, // | 2--8 | - - - -
+   [0x1E] = { ldFunction, REG_E, IMM8 }, // | 2--8 | - - - -
+   [0x26] = { ldFunction, REG_H, IMM8 }, // | 2--8 | - - - -
+   [0x2E] = { ldFunction, REG_L, IMM8 }, // | 2--8 | - - - -
 
 
-   [0x05] = { DEC, REG_B  , EMPTY }, // | 1--4 | Z 1 H -
-   [0x0D] = { DEC, REG_C  , EMPTY }, // | 1--4 | Z 1 H -
-   [0x15] = { DEC, REG_D  , EMPTY }, // | 1--4 | Z 1 H -
-   [0x1D] = { DEC, REG_E  , EMPTY }, // | 1--4 | Z 1 H -
-   [0x25] = { DEC, REG_H  , EMPTY }, // | 1--4 | Z 1 H -
-   [0x2D] = { DEC, REG_L  , EMPTY }, // | 1--4 | Z 1 H -
-   [0x3D] = { DEC, REG_A  , EMPTY }, // | 1--4 | Z 1 H -
-   [0x35] = { DEC, MEM_REG_HL, EMPTY }, // | 1--12 | Z 1 H -
-   [0x0B] = { DEC, REG_BC , EMPTY }, // | 1--8 | - - - -
-   [0x1B] = { DEC, REG_DE , EMPTY }, // | 1--8 | - - - -
-   [0x2B] = { DEC, REG_HL , EMPTY }, // | 1--8 | - - - -
-   [0x3B] = { DEC, REG_SP , EMPTY }, // | 1--8 | - - - -
+   [0x01] = { ldFunction, REG_BC, IMM16 }, // | 3--12 | - - - -
+   [0x11] = { ldFunction, REG_DE, IMM16 }, // | 3--12 | - - - -
+   [0x21] = { ldFunction, REG_HL, IMM16 }, // | 3--12 | - - - -
+   [0x31] = { ldFunction, REG_SP, IMM16 }, // | 3--12 | - - - -
+
+   [0xF8] = { ldFunction, REG_HL, REG_SP_PLUS_SIMM8}, // | 2--12 | 0 0 H C
 
 
 
-   [0x09] = { ADD, REG_HL, REG_BC }, // | 1--8 | - 0 H C
-   [0x19] = { ADD, REG_HL, REG_DE }, // | 1--8 | - 0 H C
-   [0x29] = { ADD, REG_HL, REG_HL }, // | 1--8 | - 0 H C
-   [0x39] = { ADD, REG_HL, REG_SP }, // | 1--8 | - 0 H C
-   [0x80] = { ADD, REG_A, REG_B }, // | 1--4 | Z 0 H C
-   [0x81] = { ADD, REG_A, REG_C }, // | 1--4 | Z 0 H C
-   [0x82] = { ADD, REG_A, REG_D }, // | 1--4 | Z 0 H C
-   [0x83] = { ADD, REG_A, REG_E }, // | 1--4 | Z 0 H C
-   [0x84] = { ADD, REG_A, REG_H }, // | 1--4 | Z 0 H C
-   [0x85] = { ADD, REG_A, REG_L }, // | 1--4 | Z 0 H C
-   [0x87] = { ADD, REG_A, REG_A }, // | 1--4 | Z 0 H C
-   [0xC6] = { ADD, REG_A, IMM8 }, // | 2--8 | Z 0 H C
-   [0xE8] = { ADD, REG_SP, SIMM8 }, // | 2--16 | 0 0 H C
-   [0x86] = { ADD, REG_A, MEM_REG_HL}, // | 1--8 | Z 0 H C
+   // Increment (INC) instructions
+   [0x04] = { incFunction, REG_B , EMPTY }, // | 1--4 | Z 0 H -
+   [0x0C] = { incFunction, REG_C , EMPTY }, // | 1--4 | Z 0 H -
+   [0x14] = { incFunction, REG_D , EMPTY }, // | 1--4 | Z 0 H -
+   [0x1C] = { incFunction, REG_E , EMPTY }, // | 1--4 | Z 0 H -
+   [0x24] = { incFunction, REG_H , EMPTY }, // | 1--4 | Z 0 H -
+   [0x2C] = { incFunction, REG_L , EMPTY }, // | 1--4 | Z 0 H -
+   [0x3C] = { incFunction, REG_A , EMPTY }, // | 1--4 | Z 0 H -
+   [0x34] = { incFunction, MEM_REG_HL, EMPTY }, // | 1--12 | Z 0 H -
+
+   [0x03] = { incFunction, REG_BC, EMPTY }, // | 1--8 | - - - -
+   [0x13] = { incFunction, REG_DE, EMPTY }, // | 1--8 | - - - -
+   [0x23] = { incFunction, REG_HL, EMPTY }, // | 1--8 | - - - -
+   [0x33] = { incFunction, REG_SP, EMPTY }, // | 1--8 | - - - -
 
 
-   [0x88] = { ADC, REG_A, REG_B }, // | 1--4 | Z 0 H C
-   [0x89] = { ADC, REG_A, REG_C }, // | 1--4 | Z 0 H C
-   [0x8A] = { ADC, REG_A, REG_D }, // | 1--4 | Z 0 H C
-   [0x8B] = { ADC, REG_A, REG_E }, // | 1--4 | Z 0 H C
-   [0x8C] = { ADC, REG_A, REG_H }, // | 1--4 | Z 0 H C
-   [0x8D] = { ADC, REG_A, REG_L }, // | 1--4 | Z 0 H C
-   [0x8F] = { ADC, REG_A, REG_A }, // | 1--4 | Z 0 H C
-   [0xCE] = { ADC, REG_A, IMM8 }, // | 2--8 | Z 0 H C
-   [0x8E] = { ADC, REG_A, MEM_REG_HL }, // | 1--8 | Z 0 H C
+   // Decrement (DEC) instructions
+   [0x05] = { decFunction, REG_B  , EMPTY }, // | 1--4 | Z 1 H -
+   [0x0D] = { decFunction, REG_C  , EMPTY }, // | 1--4 | Z 1 H -
+   [0x15] = { decFunction, REG_D  , EMPTY }, // | 1--4 | Z 1 H -
+   [0x1D] = { decFunction, REG_E  , EMPTY }, // | 1--4 | Z 1 H -
+   [0x25] = { decFunction, REG_H  , EMPTY }, // | 1--4 | Z 1 H -
+   [0x2D] = { decFunction, REG_L  , EMPTY }, // | 1--4 | Z 1 H -
+   [0x3D] = { decFunction, REG_A  , EMPTY }, // | 1--4 | Z 1 H -
+   [0x35] = { decFunction, MEM_REG_HL, EMPTY }, // | 1--12 | Z 1 H -
+
+   [0x0B] = { decFunction, REG_BC , EMPTY }, // | 1--8 | - - - -
+   [0x1B] = { decFunction, REG_DE , EMPTY }, // | 1--8 | - - - -
+   [0x2B] = { decFunction, REG_HL , EMPTY }, // | 1--8 | - - - -
+   [0x3B] = { decFunction, REG_SP , EMPTY }, // | 1--8 | - - - -
 
 
-   [0x90] = { SUB, REG_A, REG_B }, // | 1--4 | Z 1 H C
-   [0x91] = { SUB, REG_A, REG_C }, // | 1--4 | Z 1 H C
-   [0x92] = { SUB, REG_A, REG_D }, // | 1--4 | Z 1 H C
-   [0x93] = { SUB, REG_A, REG_E }, // | 1--4 | Z 1 H C
-   [0x94] = { SUB, REG_A, REG_H }, // | 1--4 | Z 1 H C
-   [0x95] = { SUB, REG_A, REG_L }, // | 1--4 | Z 1 H C
-   [0x97] = { SUB, REG_A, REG_A }, // | 1--4 | Z 1 H C
-   [0xD6] = { SUB, REG_A, IMM8 }, // | 2--8 | Z 1 H C
-   [0x96] = { SUB, REG_A, MEM_REG_HL }, // | 1--8 | Z 1 H C
+   // Add (ADD) instructions
+   [0x80] = { addFunction, REG_A, REG_B }, // | 1--4 | Z 0 H C
+   [0x81] = { addFunction, REG_A, REG_C }, // | 1--4 | Z 0 H C
+   [0x82] = { addFunction, REG_A, REG_D }, // | 1--4 | Z 0 H C
+   [0x83] = { addFunction, REG_A, REG_E }, // | 1--4 | Z 0 H C
+   [0x84] = { addFunction, REG_A, REG_H }, // | 1--4 | Z 0 H C
+   [0x85] = { addFunction, REG_A, REG_L }, // | 1--4 | Z 0 H C
+   [0x87] = { addFunction, REG_A, REG_A }, // | 1--4 | Z 0 H C
+   [0xC6] = { addFunction, REG_A, IMM8  }, // | 2--8 | Z 0 H C
+   [0x86] = { addFunction, REG_A, MEM_REG_HL}, // | 1--8 | Z 0 H C
+
+   [0x09] = { addFunction, REG_HL, REG_BC }, // | 1--8 | - 0 H C
+   [0x19] = { addFunction, REG_HL, REG_DE }, // | 1--8 | - 0 H C
+   [0x29] = { addFunction, REG_HL, REG_HL }, // | 1--8 | - 0 H C
+   [0x39] = { addFunction, REG_HL, REG_SP }, // | 1--8 | - 0 H C
+
+   [0xE8] = { addFunction, REG_SP, SIMM8 }, // | 2--16 | 0 0 H C
+
+   // Add with carry (ADC) instructions
+   [0x88] = { adcFunction, REG_A, REG_B }, // | 1--4 | Z 0 H C
+   [0x89] = { adcFunction, REG_A, REG_C }, // | 1--4 | Z 0 H C
+   [0x8A] = { adcFunction, REG_A, REG_D }, // | 1--4 | Z 0 H C
+   [0x8B] = { adcFunction, REG_A, REG_E }, // | 1--4 | Z 0 H C
+   [0x8C] = { adcFunction, REG_A, REG_H }, // | 1--4 | Z 0 H C
+   [0x8D] = { adcFunction, REG_A, REG_L }, // | 1--4 | Z 0 H C
+   [0x8F] = { adcFunction, REG_A, REG_A }, // | 1--4 | Z 0 H C
+   [0xCE] = { adcFunction, REG_A, IMM8 }, // | 2--8 | Z 0 H C
+   [0x8E] = { adcFunction, REG_A, MEM_REG_HL }, // | 1--8 | Z 0 H C
 
 
-   [0x98] = { SBC, REG_A, REG_B }, // | 1--4 | Z 1 H C
-   [0x99] = { SBC, REG_A, REG_C }, // | 1--4 | Z 1 H C
-   [0x9A] = { SBC, REG_A, REG_D }, // | 1--4 | Z 1 H C
-   [0x9B] = { SBC, REG_A, REG_E }, // | 1--4 | Z 1 H C
-   [0x9C] = { SBC, REG_A, REG_H }, // | 1--4 | Z 1 H C
-   [0x9D] = { SBC, REG_A, REG_L }, // | 1--4 | Z 1 H C
-   [0x9F] = { SBC, REG_A, REG_A }, // | 1--4 | Z 1 H C
-   [0xDE] = { SBC, REG_A, IMM8 }, // | 2--8 | Z 1 H C
-   [0x9E] = { SBC, REG_A, MEM_REG_HL }, // | 1--8 | Z 1 H C
+   // Subtract (SUB) instructions
+   [0x90] = { subFunction, REG_A, REG_B }, // | 1--4 | Z 1 H C
+   [0x91] = { subFunction, REG_A, REG_C }, // | 1--4 | Z 1 H C
+   [0x92] = { subFunction, REG_A, REG_D }, // | 1--4 | Z 1 H C
+   [0x93] = { subFunction, REG_A, REG_E }, // | 1--4 | Z 1 H C
+   [0x94] = { subFunction, REG_A, REG_H }, // | 1--4 | Z 1 H C
+   [0x95] = { subFunction, REG_A, REG_L }, // | 1--4 | Z 1 H C
+   [0x97] = { subFunction, REG_A, REG_A }, // | 1--4 | Z 1 H C
+   [0xD6] = { subFunction, REG_A, IMM8 }, // | 2--8 | Z 1 H C
+   [0x96] = { subFunction, REG_A, MEM_REG_HL }, // | 1--8 | Z 1 H C
 
 
-   [0xA8] = { XOR, REG_A, REG_B }, // | 1--4 | Z 0 0 0
-   [0xA9] = { XOR, REG_A, REG_C }, // | 1--4 | Z 0 0 0
-   [0xAA] = { XOR, REG_A, REG_D }, // | 1--4 | Z 0 0 0
-   [0xAB] = { XOR, REG_A, REG_E }, // | 1--4 | Z 0 0 0
-   [0xAC] = { XOR, REG_A, REG_H }, // | 1--4 | Z 0 0 0
-   [0xAD] = { XOR, REG_A, REG_L }, // | 1--4 | Z 0 0 0
-   [0xAF] = { XOR, REG_A, REG_A }, // | 1--4 | Z 0 0 0
-   [0xEE] = { XOR, REG_A, IMM8 }, // | 2--8 | Z 0 0 0
-   [0xAE] = { XOR, REG_A, MEM_REG_HL }, // | 1--8 | Z 0 0 0
-
-
-   [0xA0] = { AND, REG_A, REG_B }, // | 1--4 | Z 0 1 0
-   [0xA1] = { AND, REG_A, REG_C }, // | 1--4 | Z 0 1 0
-   [0xA2] = { AND, REG_A, REG_D }, // | 1--4 | Z 0 1 0
-   [0xA3] = { AND, REG_A, REG_E }, // | 1--4 | Z 0 1 0
-   [0xA4] = { AND, REG_A, REG_H }, // | 1--4 | Z 0 1 0
-   [0xA5] = { AND, REG_A, REG_L }, // | 1--4 | Z 0 1 0
-   [0xA7] = { AND, REG_A, REG_A }, // | 1--4 | Z 0 1 0
-   [0xE6] = { AND, REG_A, IMM8 }, // | 2--8 | Z 0 1 0
-   [0xA6] = { AND, REG_A, MEM_REG_HL }, // | 1--8 | Z 0 1 0
-
-
-   [0xB0] = { OR, REG_A, REG_B }, // | 1--4 | Z 0 0 0
-   [0xB1] = { OR, REG_A, REG_C }, // | 1--4 | Z 0 0 0
-   [0xB2] = { OR, REG_A, REG_D }, // | 1--4 | Z 0 0 0
-   [0xB3] = { OR, REG_A, REG_E }, // | 1--4 | Z 0 0 0
-   [0xB4] = { OR, REG_A, REG_H }, // | 1--4 | Z 0 0 0
-   [0xB5] = { OR, REG_A, REG_L }, // | 1--4 | Z 0 0 0
-   [0xB7] = { OR, REG_A, REG_A }, // | 1--4 | Z 0 0 0
-   [0xF6] = { OR, REG_A, IMM8 }, // | 2--8 | Z 0 0 0
-   [0xB6] = { OR, REG_A, MEM_REG_HL }, // | 1--8 | Z 0 0 0
-
-
-
-   [0xB8] = { CP, REG_A, REG_B }, // | 1--4 | Z 1 H C
-   [0xB9] = { CP, REG_A, REG_C }, // | 1--4 | Z 1 H C
-   [0xBA] = { CP, REG_A, REG_D }, // | 1--4 | Z 1 H C
-   [0xBB] = { CP, REG_A, REG_E }, // | 1--4 | Z 1 H C
-   [0xBC] = { CP, REG_A, REG_H }, // | 1--4 | Z 1 H C
-   [0xBD] = { CP, REG_A, REG_L }, // | 1--4 | Z 1 H C
-   [0xBF] = { CP, REG_A, REG_A }, // | 1--4 | Z 1 H C
-   [0xFE] = { CP, REG_A, IMM8 }, // | 2--8 | Z 1 H C
-   [0xBE] = { CP, REG_A, MEM_REG_HL }, // | 1--8 | Z 1 H C
-
-
-   [0xE9] = { JP, MEM_REG_HL, EMPTY }, // | 1--4 | - - - -
-   [0xC3] = { JP, IMM16, EMPTY }, // | 3--16 | - - - -
-   [0xC2] = { JP, CON_NZ,IMM16 }, // | 3--16/12 | - - - -
-   [0xCA] = { JP, CON_Z,IMM16 }, // | 3--16/12 | - - - -
-   [0xD2] = { JP, CON_NC,IMM16 }, // | 3--16/12 | - - - -
-   [0xDA] = { JP, CON_C,IMM16 }, // | 3--16/12 | - - - -
-
-
-   [0x18] = { JR, SIMM8, EMPTY }, // | 2--12 | - - - -
-   [0x38] = { JR, CON_C, SIMM8 }, // | 2--12/8 | - - - -
-   [0x20] = { JR, CON_NZ, SIMM8 }, // | 2--12/8 | - - - -
-   [0x28] = { JR, CON_Z, SIMM8 }, // | 2--12/8 | - - - -
-   [0x30] = { JR, CON_NC, SIMM8 }, // | 2--12/8 | - - - -
+   // Subtract with carry (SBC) instructions
+   [0x98] = { sbcFunction, REG_A, REG_B }, // | 1--4 | Z 1 H C
+   [0x99] = { sbcFunction, REG_A, REG_C }, // | 1--4 | Z 1 H C
+   [0x9A] = { sbcFunction, REG_A, REG_D }, // | 1--4 | Z 1 H C
+   [0x9B] = { sbcFunction, REG_A, REG_E }, // | 1--4 | Z 1 H C
+   [0x9C] = { sbcFunction, REG_A, REG_H }, // | 1--4 | Z 1 H C
+   [0x9D] = { sbcFunction, REG_A, REG_L }, // | 1--4 | Z 1 H C
+   [0x9F] = { sbcFunction, REG_A, REG_A }, // | 1--4 | Z 1 H C
+   [0xDE] = { sbcFunction, REG_A, IMM8 }, // | 2--8 | Z 1 H C
+   [0x9E] = { sbcFunction, REG_A, MEM_REG_HL }, // | 1--8 | Z 1 H C
 
 
 
-   [0xC5] = { PUSH, REG_BC, EMPTY }, // | 1--16 | - - - -
-   [0xD5] = { PUSH, REG_DE, EMPTY }, // | 1--16 | - - - -
-   [0xE5] = { PUSH, REG_HL, EMPTY }, // | 1--16 | - - - -
-   [0xF5] = { PUSH, REG_AF, EMPTY }, // | 1--16 | - - - -
+
+   // And (AND) instructions
+   [0xA0] = { andFunction, REG_A, REG_B }, // | 1--4 | Z 0 1 0
+   [0xA1] = { andFunction, REG_A, REG_C }, // | 1--4 | Z 0 1 0
+   [0xA2] = { andFunction, REG_A, REG_D }, // | 1--4 | Z 0 1 0
+   [0xA3] = { andFunction, REG_A, REG_E }, // | 1--4 | Z 0 1 0
+   [0xA4] = { andFunction, REG_A, REG_H }, // | 1--4 | Z 0 1 0
+   [0xA5] = { andFunction, REG_A, REG_L }, // | 1--4 | Z 0 1 0
+   [0xA7] = { andFunction, REG_A, REG_A }, // | 1--4 | Z 0 1 0
+   [0xE6] = { andFunction, REG_A, IMM8 }, // | 2--8 | Z 0 1 0
+   [0xA6] = { andFunction, REG_A, MEM_REG_HL }, // | 1--8 | Z 0 1 0
 
 
-   [0xC1] = { POP, REG_BC, EMPTY }, // | 1--12 | - - - -
-   [0xD1] = { POP, REG_DE, EMPTY }, // | 1--12 | - - - -
-   [0xE1] = { POP, REG_HL, EMPTY }, // | 1--12 | - - - -
-   [0xF1] = { POP, REG_AF, EMPTY }, // | 1--12 | Z N H C
+   // Or (OR) instructions
+   [0xB0] = { orFunction, REG_A, REG_B }, // | 1--4 | Z 0 0 0
+   [0xB1] = { orFunction, REG_A, REG_C }, // | 1--4 | Z 0 0 0
+   [0xB2] = { orFunction, REG_A, REG_D }, // | 1--4 | Z 0 0 0
+   [0xB3] = { orFunction, REG_A, REG_E }, // | 1--4 | Z 0 0 0
+   [0xB4] = { orFunction, REG_A, REG_H }, // | 1--4 | Z 0 0 0
+   [0xB5] = { orFunction, REG_A, REG_L }, // | 1--4 | Z 0 0 0
+   [0xB7] = { orFunction, REG_A, REG_A }, // | 1--4 | Z 0 0 0
+   [0xF6] = { orFunction, REG_A, IMM8 }, // | 2--8 | Z 0 0 0
+   [0xB6] = { orFunction, REG_A, MEM_REG_HL }, // | 1--8 | Z 0 0 0
 
 
-   [0xCD] = { CALL, IMM16, EMPTY }, // | 3--24 | - - - -
-   [0xC4] = { CALL, CON_NZ,IMM16 }, // | 3--24/12 | - - - -
-   [0xCC] = { CALL, CON_Z,IMM16 }, // | 3--24/12 | - - - -
-   [0xD4] = { CALL, CON_NC,IMM16 }, // | 3--24/12 | - - - -
-   [0xDC] = { CALL, CON_C,IMM16 }, // | 3--24/12 | - - - -
+   // Xor (XOR) instructions
+   [0xA8] = { xorFunction, REG_A, REG_B }, // | 1--4 | Z 0 0 0
+   [0xA9] = { xorFunction, REG_A, REG_C }, // | 1--4 | Z 0 0 0
+   [0xAA] = { xorFunction, REG_A, REG_D }, // | 1--4 | Z 0 0 0
+   [0xAB] = { xorFunction, REG_A, REG_E }, // | 1--4 | Z 0 0 0
+   [0xAC] = { xorFunction, REG_A, REG_H }, // | 1--4 | Z 0 0 0
+   [0xAD] = { xorFunction, REG_A, REG_L }, // | 1--4 | Z 0 0 0
+   [0xAF] = { xorFunction, REG_A, REG_A }, // | 1--4 | Z 0 0 0
+   [0xEE] = { xorFunction, REG_A, IMM8 }, // | 2--8 | Z 0 0 0
+   [0xAE] = { xorFunction, REG_A, MEM_REG_HL }, // | 1--8 | Z 0 0 0
+
+   // Compare (CP) instructions
+   [0xB8] = { cpFunction, REG_A, REG_B }, // | 1--4 | Z 1 H C
+   [0xB9] = { cpFunction, REG_A, REG_C }, // | 1--4 | Z 1 H C
+   [0xBA] = { cpFunction, REG_A, REG_D }, // | 1--4 | Z 1 H C
+   [0xBB] = { cpFunction, REG_A, REG_E }, // | 1--4 | Z 1 H C
+   [0xBC] = { cpFunction, REG_A, REG_H }, // | 1--4 | Z 1 H C
+   [0xBD] = { cpFunction, REG_A, REG_L }, // | 1--4 | Z 1 H C
+   [0xBF] = { cpFunction, REG_A, REG_A }, // | 1--4 | Z 1 H C
+   [0xFE] = { cpFunction, REG_A, IMM8 }, // | 2--8 | Z 1 H C
+   [0xBE] = { cpFunction, REG_A, MEM_REG_HL }, // | 1--8 | Z 1 H C
+
+
+   // Jump (JP) instructions
+   [0xE9] = { jpFunction, MEM_REG_HL, EMPTY }, // | 1--4 | - - - -
+   [0xC3] = { jpFunction, IMM16, EMPTY }, // | 3--16 | - - - -
+   [0xC2] = { jpFunction, CON_NZ,IMM16 }, // | 3--16/12 | - - - -
+   [0xCA] = { jpFunction, CON_Z,IMM16 }, // | 3--16/12 | - - - -
+   [0xD2] = { jpFunction, CON_NC,IMM16 }, // | 3--16/12 | - - - -
+   [0xDA] = { jpFunction, CON_C,IMM16 }, // | 3--16/12 | - - - -
+
+
+   // Relative jump (JR) instructions
+   [0x18] = { jrFunction, SIMM8, EMPTY }, // | 2--12 | - - - -
+   [0x38] = { jrFunction, CON_C, SIMM8 }, // | 2--12/8 | - - - -
+   [0x20] = { jrFunction, CON_NZ, SIMM8 }, // | 2--12/8 | - - - -
+   [0x28] = { jrFunction, CON_Z, SIMM8 }, // | 2--12/8 | - - - -
+   [0x30] = { jrFunction, CON_NC, SIMM8 }, // | 2--12/8 | - - - -
 
 
 
-   [0xC0] = { RET, CON_NZ, EMPTY }, // | 1--20/8 | - - - -
-   [0xC8] = { RET, CON_Z , EMPTY }, // | 1--20/8 | - - - -
-   [0xD0] = { RET, CON_NC, EMPTY }, // | 1--20/8 | - - - -
-   [0xD8] = { RET, CON_C , EMPTY }, // | 1--20/8 | - - - -
-   [0xC9] = { RET, EMPTY, EMPTY }, // | 1--16 | - - - -
-   [0xD9] = { RETI, EMPTY, EMPTY }, // | 1--16 | - - - -
+   // Push to stack (PUSH) instructions
+   [0xC5] = { pushFunction, REG_BC, EMPTY }, // | 1--16 | - - - -
+   [0xD5] = { pushFunction, REG_DE, EMPTY }, // | 1--16 | - - - -
+   [0xE5] = { pushFunction, REG_HL, EMPTY }, // | 1--16 | - - - -
+   [0xF5] = { pushFunction, REG_AF, EMPTY }, // | 1--16 | - - - -
 
 
-   [0xC7] = { RST, 0x00, EMPTY}, // | 1--16 | - - - -
-   [0xCF] = { RST, 0x08, EMPTY}, // | 1--16 | - - - -
-   [0xD7] = { RST, 0x10, EMPTY}, // | 1--16 | - - - -
-   [0xDF] = { RST, 0x18, EMPTY}, // | 1--16 | - - - -
-   [0xE7] = { RST, 0x20, EMPTY}, // | 1--16 | - - - -
-   [0xEF] = { RST, 0x28, EMPTY}, // | 1--16 | - - - -
-   [0xF7] = { RST, 0x30, EMPTY}, // | 1--16 | - - - -
-   [0xFF] = { RST, 0x38, EMPTY}, // | 1--16 | - - - -
+   // Pop from stack (POP) instructions
+   [0xC1] = { popFunction, REG_BC, EMPTY }, // | 1--12 | - - - -
+   [0xD1] = { popFunction, REG_DE, EMPTY }, // | 1--12 | - - - -
+   [0xE1] = { popFunction, REG_HL, EMPTY }, // | 1--12 | - - - -
+   [0xF1] = { popFunction, REG_AF, EMPTY }, // | 1--12 | Z N H C
 
 
+   // Call a routine (CALL) instructions
+   [0xCD] = { callFunction, IMM16, EMPTY }, // | 3--24 | - - - -
+   [0xC4] = { callFunction, CON_NZ,IMM16 }, // | 3--24/12 | - - - -
+   [0xCC] = { callFunction, CON_Z,IMM16 }, // | 3--24/12 | - - - -
+   [0xD4] = { callFunction, CON_NC,IMM16 }, // | 3--24/12 | - - - -
+   [0xDC] = { callFunction, CON_C,IMM16 }, // | 3--24/12 | - - - -
+
+
+
+   // Reture from a routine (RET) instructions
+   [0xC0] = { retFunction, CON_NZ, EMPTY }, // | 1--20/8 | - - - -
+   [0xC8] = { retFunction, CON_Z , EMPTY }, // | 1--20/8 | - - - -
+   [0xD0] = { retFunction, CON_NC, EMPTY }, // | 1--20/8 | - - - -
+   [0xD8] = { retFunction, CON_C , EMPTY }, // | 1--20/8 | - - - -
+   [0xC9] = { retFunction, EMPTY, EMPTY }, // | 1--16 | - - - -
+   [0xD9] = { retiFunction, EMPTY, EMPTY }, // | 1--16 | - - - -
+
+
+   // Call Reset Routines (RST) instructions
+   [0xC7] = { rstFunction, 0x00, EMPTY}, // | 1--16 | - - - -
+   [0xCF] = { rstFunction, 0x08, EMPTY}, // | 1--16 | - - - -
+   [0xD7] = { rstFunction, 0x10, EMPTY}, // | 1--16 | - - - -
+   [0xDF] = { rstFunction, 0x18, EMPTY}, // | 1--16 | - - - -
+   [0xE7] = { rstFunction, 0x20, EMPTY}, // | 1--16 | - - - -
+   [0xEF] = { rstFunction, 0x28, EMPTY}, // | 1--16 | - - - -
+   [0xF7] = { rstFunction, 0x30, EMPTY}, // | 1--16 | - - - -
+   [0xFF] = { rstFunction, 0x38, EMPTY}, // | 1--16 | - - - -
+
+
+  
+   // Decimal Adjust for REG_A instruction
+   [0x27] = { daaFunction, EMPTY, EMPTY }, // | 1--4 | Z - 0 C
+
+   // REG_A XOR 0xFF instruction
+   [0x2F] = { cplFunction, EMPTY, EMPTY }, // | 1--4 | - 1 1 -
+
+   // Set carry flag to 1 instruction
+   [0x37] = { scfFunction, EMPTY, EMPTY }, // | 1--4 | - 0 0 1
+
+   // carry XOR 0xFF instruction
+   [0x3F] = { ccfFunction, EMPTY, EMPTY }, // | 1--4 | - 0 0 C
    
-   [0x27] = { DAA, EMPTY, EMPTY }, // | 1--4 | Z - 0 C
-
-   [0x2F] = { CPL, EMPTY, EMPTY }, // | 1--4 | - 1 1 -
-   [0x37] = { SCF, EMPTY, EMPTY }, // | 1--4 | - 0 0 1
-   [0x3F] = { CCF, EMPTY, EMPTY }, // | 1--4 | - 0 0 C
+  
+   //Enable (EI) and disable (DI) interrupts instructions 
+   [0xF3] = { diFunction, EMPTY, EMPTY }, // | 1--4 | - - - -
+   [0xFB] = { eiFunction, EMPTY, EMPTY }, // | 1--4 | - - - -
+  
+   // No operation instruction
+   [0x00] = { nopFunction, EMPTY, EMPTY }, // | 1--4 | - - - -
+   // Stop instruction
+   [0x10] = { stopFunction, EMPTY, EMPTY }, // | 2--4 | - - - -
+   // Halt instruction
+   [0x76] = { haltFunction, EMPTY, EMPTY }, // | 1--4 | - - - -
    
-   
-   [0xF3] = { DI, EMPTY, EMPTY }, // | 1--4 | - - - -
-   [0xFB] = { EI, EMPTY, EMPTY }, // | 1--4 | - - - -
-   
-   [0x00] = { NOP, EMPTY, EMPTY }, // | 1--4 | - - - -
-   [0x10] = { STOP, EMPTY, EMPTY }, // | 2--4 | - - - -
-   [0x76] = { HALT, EMPTY, EMPTY }, // | 1--4 | - - - -
-   
-   
-   [0x17] = { RLA, EMPTY, EMPTY }, // | 1--4 | 0 0 0 C
-   [0x1F] = { RRA, EMPTY, EMPTY }, // | 1--4 | 0 0 0 C
-   [0x07] = { RLCA, EMPTY, EMPTY}, // | 1--4 | 0 0 0 C
-   [0x0F] = { RRCA, EMPTY, EMPTY}, // | 1--4 | 0 0 0 C
+  
+   // Rotate REG_A left through carry (RLA) instruction
+   [0x17] = { rlaFunction, EMPTY, EMPTY }, // | 1--4 | 0 0 0 C
+   // Rotate REG_A right through carry (RRA) instruction
+   [0x1F] = { rraFunction, EMPTY, EMPTY }, // | 1--4 | 0 0 0 C
+   // Rotate REG_A left (RLCA) instruction
+   [0x07] = { rlcaFunction, EMPTY, EMPTY}, // | 1--4 | 0 0 0 C
+   // Rotate REG_A right (RRCA) instruction
+   [0x0F] = { rrcaFunction, EMPTY, EMPTY}, // | 1--4 | 0 0 0 C
 };
    
          
 // CB Instructions         
 const instruction cb_inst[0x100] = {
-   [0x00] = { RLC, REG_B, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x01] = { RLC, REG_C, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x02] = { RLC, REG_D, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x03] = { RLC, REG_E, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x04] = { RLC, REG_H, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x05] = { RLC, REG_L, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x07] = { RLC, REG_A, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x06] = { RLC, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 C
+   // Rotate left (RLC) instruction
+   [0x00] = { rlcFunction, REG_B, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x01] = { rlcFunction, REG_C, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x02] = { rlcFunction, REG_D, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x03] = { rlcFunction, REG_E, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x04] = { rlcFunction, REG_H, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x05] = { rlcFunction, REG_L, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x07] = { rlcFunction, REG_A, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x06] = { rlcFunction, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 C
 
 
-   [0x08] = { RRC, REG_B, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x09] = { RRC, REG_C, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x0A] = { RRC, REG_D, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x0B] = { RRC, REG_E, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x0C] = { RRC, REG_H, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x0D] = { RRC, REG_L, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x0F] = { RRC, REG_A, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x0E] = { RRC, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 C
+   // Rotate right (RRC) instruction
+   [0x08] = { rrcFunction, REG_B, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x09] = { rrcFunction, REG_C, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x0A] = { rrcFunction, REG_D, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x0B] = { rrcFunction, REG_E, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x0C] = { rrcFunction, REG_H, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x0D] = { rrcFunction, REG_L, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x0F] = { rrcFunction, REG_A, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x0E] = { rrcFunction, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 C
    
    
-   [0x10] = { RL, REG_B, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x11] = { RL, REG_C, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x12] = { RL, REG_D, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x13] = { RL, REG_E, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x14] = { RL, REG_H, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x15] = { RL, REG_L, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x17] = { RL, REG_A, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x16] = { RL, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 C
+   // Rotate left through carry (RL) instruction
+   [0x10] = { rlFunction, REG_B, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x11] = { rlFunction, REG_C, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x12] = { rlFunction, REG_D, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x13] = { rlFunction, REG_E, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x14] = { rlFunction, REG_H, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x15] = { rlFunction, REG_L, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x17] = { rlFunction, REG_A, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x16] = { rlFunction, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 C
 
-   [0x18] = { RR, REG_B, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x19] = { RR, REG_C, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x1A] = { RR, REG_D, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x1B] = { RR, REG_E, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x1C] = { RR, REG_H, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x1D] = { RR, REG_L, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x1F] = { RR, REG_A, EMPTY }, // | 2--8 | Z 0 0 C
-   [0x1E] = { RR, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 C
+   // Rotate right through carry (RR) instruction
+   [0x18] = { rrFunction, REG_B, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x19] = { rrFunction, REG_C, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x1A] = { rrFunction, REG_D, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x1B] = { rrFunction, REG_E, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x1C] = { rrFunction, REG_H, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x1D] = { rrFunction, REG_L, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x1F] = { rrFunction, REG_A, EMPTY }, // | 2--8 | Z 0 0 C
+   [0x1E] = { rrFunction, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 C
+   
+  // Shift left arithmetically (SLA) instruction 
+   [0x20] = { slaFunction, REG_B, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x21] = { slaFunction, REG_C, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x22] = { slaFunction, REG_D, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x23] = { slaFunction, REG_E, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x24] = { slaFunction, REG_H, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x25] = { slaFunction, REG_L, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x27] = { slaFunction, REG_A, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x26] = { slaFunction, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 C
+
+  // Shift right arithmetically (SRA) instruction 
+   [0x28] = { sraFunction, REG_B, EMPTY}, // | 2--8 | Z 0 0 0
+   [0x29] = { sraFunction, REG_C, EMPTY}, // | 2--8 | Z 0 0 0
+   [0x2A] = { sraFunction, REG_D, EMPTY}, // | 2--8 | Z 0 0 0
+   [0x2B] = { sraFunction, REG_E, EMPTY}, // | 2--8 | Z 0 0 0
+   [0x2C] = { sraFunction, REG_H, EMPTY}, // | 2--8 | Z 0 0 0
+   [0x2D] = { sraFunction, REG_L, EMPTY}, // | 2--8 | Z 0 0 0
+   [0x2F] = { sraFunction, REG_A, EMPTY}, // | 2--8 | Z 0 0 0
+   [0x2E] = { sraFunction, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 0
    
    
-   [0x20] = { SLA, REG_B, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x21] = { SLA, REG_C, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x22] = { SLA, REG_D, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x23] = { SLA, REG_E, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x24] = { SLA, REG_H, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x25] = { SLA, REG_L, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x27] = { SLA, REG_A, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x26] = { SLA, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 C
 
-   [0x28] = { SRA, REG_B, EMPTY}, // | 2--8 | Z 0 0 0
-   [0x29] = { SRA, REG_C, EMPTY}, // | 2--8 | Z 0 0 0
-   [0x2A] = { SRA, REG_D, EMPTY}, // | 2--8 | Z 0 0 0
-   [0x2B] = { SRA, REG_E, EMPTY}, // | 2--8 | Z 0 0 0
-   [0x2C] = { SRA, REG_H, EMPTY}, // | 2--8 | Z 0 0 0
-   [0x2D] = { SRA, REG_L, EMPTY}, // | 2--8 | Z 0 0 0
-   [0x2F] = { SRA, REG_A, EMPTY}, // | 2--8 | Z 0 0 0
-   [0x2E] = { SRA, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 0
-   
-   
-   [0x38] = { SRL, REG_B, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x39] = { SRL, REG_C, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x3A] = { SRL, REG_D, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x3B] = { SRL, REG_E, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x3C] = { SRL, REG_H, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x3D] = { SRL, REG_L, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x3F] = { SRL, REG_A, EMPTY}, // | 2--8 | Z 0 0 C
-   [0x3E] = { SRL, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 C
+  // Shift left logically (SRL) instruction 
+   [0x38] = { srlFunction, REG_B, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x39] = { srlFunction, REG_C, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x3A] = { srlFunction, REG_D, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x3B] = { srlFunction, REG_E, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x3C] = { srlFunction, REG_H, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x3D] = { srlFunction, REG_L, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x3F] = { srlFunction, REG_A, EMPTY}, // | 2--8 | Z 0 0 C
+   [0x3E] = { srlFunction, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 C
 
 
 
-
-   [0x30] = { SWAP, REG_B, EMPTY }, // | 2--8 | Z 0 0 0
-   [0x31] = { SWAP, REG_C, EMPTY }, // | 2--8 | Z 0 0 0
-   [0x32] = { SWAP, REG_D, EMPTY }, // | 2--8 | Z 0 0 0
-   [0x33] = { SWAP, REG_E, EMPTY }, // | 2--8 | Z 0 0 0
-   [0x34] = { SWAP, REG_H, EMPTY }, // | 2--8 | Z 0 0 0
-   [0x35] = { SWAP, REG_L, EMPTY }, // | 2--8 | Z 0 0 0
-   [0x37] = { SWAP, REG_A, EMPTY }, // | 2--8 | Z 0 0 0
-   [0x36] = { SWAP, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 0
+   // Swap between high and low nibbles (SWAP) instruction
+   [0x30] = { swapFunction, REG_B, EMPTY }, // | 2--8 | Z 0 0 0
+   [0x31] = { swapFunction, REG_C, EMPTY }, // | 2--8 | Z 0 0 0
+   [0x32] = { swapFunction, REG_D, EMPTY }, // | 2--8 | Z 0 0 0
+   [0x33] = { swapFunction, REG_E, EMPTY }, // | 2--8 | Z 0 0 0
+   [0x34] = { swapFunction, REG_H, EMPTY }, // | 2--8 | Z 0 0 0
+   [0x35] = { swapFunction, REG_L, EMPTY }, // | 2--8 | Z 0 0 0
+   [0x37] = { swapFunction, REG_A, EMPTY }, // | 2--8 | Z 0 0 0
+   [0x36] = { swapFunction, MEM_REG_HL, EMPTY }, // | 2--16 | Z 0 0 0
 
 
 
 
    
-   
-   [0x40] = { BIT, 0, REG_B }, // | 2--8 | Z 0 1 -
-   [0x41] = { BIT, 0, REG_C }, // | 2--8 | Z 0 1 -
-   [0x42] = { BIT, 0, REG_D }, // | 2--8 | Z 0 1 -
-   [0x43] = { BIT, 0, REG_E }, // | 2--8 | Z 0 1 -
-   [0x44] = { BIT, 0, REG_H }, // | 2--8 | Z 0 1 -
-   [0x45] = { BIT, 0, REG_L }, // | 2--8 | Z 0 1 -
-   [0x47] = { BIT, 0, REG_A }, // | 2--8 | Z 0 1 -
-   [0x48] = { BIT, 1, REG_B }, // | 2--8 | Z 0 1 -
-   [0x49] = { BIT, 1, REG_C }, // | 2--8 | Z 0 1 -
-   [0x4A] = { BIT, 1, REG_D }, // | 2--8 | Z 0 1 -
-   [0x4B] = { BIT, 1, REG_E }, // | 2--8 | Z 0 1 -
-   [0x4C] = { BIT, 1, REG_H }, // | 2--8 | Z 0 1 -
-   [0x4D] = { BIT, 1, REG_L }, // | 2--8 | Z 0 1 -
-   [0x4F] = { BIT, 1, REG_A }, // | 2--8 | Z 0 1 -
-   [0x50] = { BIT, 2, REG_B }, // | 2--8 | Z 0 1 -
-   [0x51] = { BIT, 2, REG_C }, // | 2--8 | Z 0 1 -
-   [0x52] = { BIT, 2, REG_D }, // | 2--8 | Z 0 1 -
-   [0x53] = { BIT, 2, REG_E }, // | 2--8 | Z 0 1 -
-   [0x54] = { BIT, 2, REG_H }, // | 2--8 | Z 0 1 -
-   [0x55] = { BIT, 2, REG_L }, // | 2--8 | Z 0 1 -
-   [0x57] = { BIT, 2, REG_A }, // | 2--8 | Z 0 1 -
-   [0x58] = { BIT, 3, REG_B }, // | 2--8 | Z 0 1 -
-   [0x59] = { BIT, 3, REG_C }, // | 2--8 | Z 0 1 -
-   [0x5A] = { BIT, 3, REG_D }, // | 2--8 | Z 0 1 -
-   [0x5B] = { BIT, 3, REG_E }, // | 2--8 | Z 0 1 -
-   [0x5C] = { BIT, 3, REG_H }, // | 2--8 | Z 0 1 -
-   [0x5D] = { BIT, 3, REG_L }, // | 2--8 | Z 0 1 -
-   [0x5F] = { BIT, 3, REG_A }, // | 2--8 | Z 0 1 -
-   [0x60] = { BIT, 4, REG_B }, // | 2--8 | Z 0 1 -
-   [0x61] = { BIT, 4, REG_C }, // | 2--8 | Z 0 1 -
-   [0x62] = { BIT, 4, REG_D }, // | 2--8 | Z 0 1 -
-   [0x63] = { BIT, 4, REG_E }, // | 2--8 | Z 0 1 -
-   [0x64] = { BIT, 4, REG_H }, // | 2--8 | Z 0 1 -
-   [0x65] = { BIT, 4, REG_L }, // | 2--8 | Z 0 1 -
-   [0x67] = { BIT, 4, REG_A }, // | 2--8 | Z 0 1 -
-   [0x68] = { BIT, 5, REG_B }, // | 2--8 | Z 0 1 -
-   [0x69] = { BIT, 5, REG_C }, // | 2--8 | Z 0 1 -
-   [0x6A] = { BIT, 5, REG_D }, // | 2--8 | Z 0 1 -
-   [0x6B] = { BIT, 5, REG_E }, // | 2--8 | Z 0 1 -
-   [0x6C] = { BIT, 5, REG_H }, // | 2--8 | Z 0 1 -
-   [0x6D] = { BIT, 5, REG_L }, // | 2--8 | Z 0 1 -
-   [0x6F] = { BIT, 5, REG_A }, // | 2--8 | Z 0 1 -
-   [0x70] = { BIT, 6, REG_B }, // | 2--8 | Z 0 1 -
-   [0x71] = { BIT, 6, REG_C }, // | 2--8 | Z 0 1 -
-   [0x72] = { BIT, 6, REG_D }, // | 2--8 | Z 0 1 -
-   [0x73] = { BIT, 6, REG_E }, // | 2--8 | Z 0 1 -
-   [0x74] = { BIT, 6, REG_H }, // | 2--8 | Z 0 1 -
-   [0x75] = { BIT, 6, REG_L }, // | 2--8 | Z 0 1 -
-   [0x77] = { BIT, 6, REG_A }, // | 2--8 | Z 0 1 -
-   [0x78] = { BIT, 7, REG_B }, // | 2--8 | Z 0 1 -
-   [0x79] = { BIT, 7, REG_C }, // | 2--8 | Z 0 1 -
-   [0x7A] = { BIT, 7, REG_D }, // | 2--8 | Z 0 1 -
-   [0x7B] = { BIT, 7, REG_E }, // | 2--8 | Z 0 1 -
-   [0x7C] = { BIT, 7, REG_H }, // | 2--8 | Z 0 1 -
-   [0x7D] = { BIT, 7, REG_L }, // | 2--8 | Z 0 1 -
-   [0x7F] = { BIT, 7, REG_A }, // | 2--8 | Z 0 1 -
-   [0x46] = { BIT, 0, MEM_REG_HL }, // | 2--16 | Z 0 1 -
-   [0x4E] = { BIT, 1, MEM_REG_HL }, // | 2--16 | Z 0 1 -
-   [0x56] = { BIT, 2, MEM_REG_HL }, // | 2--16 | Z 0 1 -
-   [0x5E] = { BIT, 3, MEM_REG_HL }, // | 2--16 | Z 0 1 -
-   [0x66] = { BIT, 4, MEM_REG_HL }, // | 2--16 | Z 0 1 -
-   [0x6E] = { BIT, 5, MEM_REG_HL }, // | 2--16 | Z 0 1 -
-   [0x76] = { BIT, 6, MEM_REG_HL }, // | 2--16 | Z 0 1 -
-   [0x7E] = { BIT, 7, MEM_REG_HL }, // | 2--16 | Z 0 1 -
+  // Check bit status (BIT) instruction 
+   [0x40] = { bitFunction, 0, REG_B }, // | 2--8 | Z 0 1 -
+   [0x41] = { bitFunction, 0, REG_C }, // | 2--8 | Z 0 1 -
+   [0x42] = { bitFunction, 0, REG_D }, // | 2--8 | Z 0 1 -
+   [0x43] = { bitFunction, 0, REG_E }, // | 2--8 | Z 0 1 -
+   [0x44] = { bitFunction, 0, REG_H }, // | 2--8 | Z 0 1 -
+   [0x45] = { bitFunction, 0, REG_L }, // | 2--8 | Z 0 1 -
+   [0x47] = { bitFunction, 0, REG_A }, // | 2--8 | Z 0 1 -
+   [0x48] = { bitFunction, 1, REG_B }, // | 2--8 | Z 0 1 -
+   [0x49] = { bitFunction, 1, REG_C }, // | 2--8 | Z 0 1 -
+   [0x4A] = { bitFunction, 1, REG_D }, // | 2--8 | Z 0 1 -
+   [0x4B] = { bitFunction, 1, REG_E }, // | 2--8 | Z 0 1 -
+   [0x4C] = { bitFunction, 1, REG_H }, // | 2--8 | Z 0 1 -
+   [0x4D] = { bitFunction, 1, REG_L }, // | 2--8 | Z 0 1 -
+   [0x4F] = { bitFunction, 1, REG_A }, // | 2--8 | Z 0 1 -
+   [0x50] = { bitFunction, 2, REG_B }, // | 2--8 | Z 0 1 -
+   [0x51] = { bitFunction, 2, REG_C }, // | 2--8 | Z 0 1 -
+   [0x52] = { bitFunction, 2, REG_D }, // | 2--8 | Z 0 1 -
+   [0x53] = { bitFunction, 2, REG_E }, // | 2--8 | Z 0 1 -
+   [0x54] = { bitFunction, 2, REG_H }, // | 2--8 | Z 0 1 -
+   [0x55] = { bitFunction, 2, REG_L }, // | 2--8 | Z 0 1 -
+   [0x57] = { bitFunction, 2, REG_A }, // | 2--8 | Z 0 1 -
+   [0x58] = { bitFunction, 3, REG_B }, // | 2--8 | Z 0 1 -
+   [0x59] = { bitFunction, 3, REG_C }, // | 2--8 | Z 0 1 -
+   [0x5A] = { bitFunction, 3, REG_D }, // | 2--8 | Z 0 1 -
+   [0x5B] = { bitFunction, 3, REG_E }, // | 2--8 | Z 0 1 -
+   [0x5C] = { bitFunction, 3, REG_H }, // | 2--8 | Z 0 1 -
+   [0x5D] = { bitFunction, 3, REG_L }, // | 2--8 | Z 0 1 -
+   [0x5F] = { bitFunction, 3, REG_A }, // | 2--8 | Z 0 1 -
+   [0x60] = { bitFunction, 4, REG_B }, // | 2--8 | Z 0 1 -
+   [0x61] = { bitFunction, 4, REG_C }, // | 2--8 | Z 0 1 -
+   [0x62] = { bitFunction, 4, REG_D }, // | 2--8 | Z 0 1 -
+   [0x63] = { bitFunction, 4, REG_E }, // | 2--8 | Z 0 1 -
+   [0x64] = { bitFunction, 4, REG_H }, // | 2--8 | Z 0 1 -
+   [0x65] = { bitFunction, 4, REG_L }, // | 2--8 | Z 0 1 -
+   [0x67] = { bitFunction, 4, REG_A }, // | 2--8 | Z 0 1 -
+   [0x68] = { bitFunction, 5, REG_B }, // | 2--8 | Z 0 1 -
+   [0x69] = { bitFunction, 5, REG_C }, // | 2--8 | Z 0 1 -
+   [0x6A] = { bitFunction, 5, REG_D }, // | 2--8 | Z 0 1 -
+   [0x6B] = { bitFunction, 5, REG_E }, // | 2--8 | Z 0 1 -
+   [0x6C] = { bitFunction, 5, REG_H }, // | 2--8 | Z 0 1 -
+   [0x6D] = { bitFunction, 5, REG_L }, // | 2--8 | Z 0 1 -
+   [0x6F] = { bitFunction, 5, REG_A }, // | 2--8 | Z 0 1 -
+   [0x70] = { bitFunction, 6, REG_B }, // | 2--8 | Z 0 1 -
+   [0x71] = { bitFunction, 6, REG_C }, // | 2--8 | Z 0 1 -
+   [0x72] = { bitFunction, 6, REG_D }, // | 2--8 | Z 0 1 -
+   [0x73] = { bitFunction, 6, REG_E }, // | 2--8 | Z 0 1 -
+   [0x74] = { bitFunction, 6, REG_H }, // | 2--8 | Z 0 1 -
+   [0x75] = { bitFunction, 6, REG_L }, // | 2--8 | Z 0 1 -
+   [0x77] = { bitFunction, 6, REG_A }, // | 2--8 | Z 0 1 -
+   [0x78] = { bitFunction, 7, REG_B }, // | 2--8 | Z 0 1 -
+   [0x79] = { bitFunction, 7, REG_C }, // | 2--8 | Z 0 1 -
+   [0x7A] = { bitFunction, 7, REG_D }, // | 2--8 | Z 0 1 -
+   [0x7B] = { bitFunction, 7, REG_E }, // | 2--8 | Z 0 1 -
+   [0x7C] = { bitFunction, 7, REG_H }, // | 2--8 | Z 0 1 -
+   [0x7D] = { bitFunction, 7, REG_L }, // | 2--8 | Z 0 1 -
+   [0x7F] = { bitFunction, 7, REG_A }, // | 2--8 | Z 0 1 -
+   [0x46] = { bitFunction, 0, MEM_REG_HL }, // | 2--16 | Z 0 1 -
+   [0x4E] = { bitFunction, 1, MEM_REG_HL }, // | 2--16 | Z 0 1 -
+   [0x56] = { bitFunction, 2, MEM_REG_HL }, // | 2--16 | Z 0 1 -
+   [0x5E] = { bitFunction, 3, MEM_REG_HL }, // | 2--16 | Z 0 1 -
+   [0x66] = { bitFunction, 4, MEM_REG_HL }, // | 2--16 | Z 0 1 -
+   [0x6E] = { bitFunction, 5, MEM_REG_HL }, // | 2--16 | Z 0 1 -
+   [0x76] = { bitFunction, 6, MEM_REG_HL }, // | 2--16 | Z 0 1 -
+   [0x7E] = { bitFunction, 7, MEM_REG_HL }, // | 2--16 | Z 0 1 -
 
    
 
-   [0x80] = { RES, 0, REG_B }, // | 2--8 | - - - -
-   [0x81] = { RES, 0, REG_C }, // | 2--8 | - - - -
-   [0x82] = { RES, 0, REG_D }, // | 2--8 | - - - -
-   [0x83] = { RES, 0, REG_E }, // | 2--8 | - - - -
-   [0x84] = { RES, 0, REG_H }, // | 2--8 | - - - -
-   [0x85] = { RES, 0, REG_L }, // | 2--8 | - - - -
-   [0x87] = { RES, 0, REG_A }, // | 2--8 | - - - -
-   [0x88] = { RES, 1, REG_B }, // | 2--8 | - - - -
-   [0x89] = { RES, 1, REG_C }, // | 2--8 | - - - -
-   [0x8A] = { RES, 1, REG_D }, // | 2--8 | - - - -
-   [0x8B] = { RES, 1, REG_E }, // | 2--8 | - - - -
-   [0x8C] = { RES, 1, REG_H }, // | 2--8 | - - - -
-   [0x8D] = { RES, 1, REG_L }, // | 2--8 | - - - -
-   [0x8F] = { RES, 1, REG_A }, // | 2--8 | - - - -
-   [0x90] = { RES, 2, REG_B }, // | 2--8 | - - - -
-   [0x91] = { RES, 2, REG_C }, // | 2--8 | - - - -
-   [0x92] = { RES, 2, REG_D }, // | 2--8 | - - - -
-   [0x93] = { RES, 2, REG_E }, // | 2--8 | - - - -
-   [0x94] = { RES, 2, REG_H }, // | 2--8 | - - - -
-   [0x95] = { RES, 2, REG_L }, // | 2--8 | - - - -
-   [0x97] = { RES, 2, REG_A }, // | 2--8 | - - - -
-   [0x98] = { RES, 3, REG_B }, // | 2--8 | - - - -
-   [0x99] = { RES, 3, REG_C }, // | 2--8 | - - - -
-   [0x9A] = { RES, 3, REG_D }, // | 2--8 | - - - -
-   [0x9B] = { RES, 3, REG_E }, // | 2--8 | - - - -
-   [0x9C] = { RES, 3, REG_H }, // | 2--8 | - - - -
-   [0x9D] = { RES, 3, REG_L }, // | 2--8 | - - - -
-   [0x9F] = { RES, 3, REG_A }, // | 2--8 | - - - -
-   [0xA0] = { RES, 4, REG_B }, // | 2--8 | - - - -
-   [0xA1] = { RES, 4, REG_C }, // | 2--8 | - - - -
-   [0xA2] = { RES, 4, REG_D }, // | 2--8 | - - - -
-   [0xA3] = { RES, 4, REG_E }, // | 2--8 | - - - -
-   [0xA4] = { RES, 4, REG_H }, // | 2--8 | - - - -
-   [0xA5] = { RES, 4, REG_L }, // | 2--8 | - - - -
-   [0xA7] = { RES, 4, REG_A }, // | 2--8 | - - - -
-   [0xA8] = { RES, 5, REG_B }, // | 2--8 | - - - -
-   [0xA9] = { RES, 5, REG_C }, // | 2--8 | - - - -
-   [0xAA] = { RES, 5, REG_D }, // | 2--8 | - - - -
-   [0xAB] = { RES, 5, REG_E }, // | 2--8 | - - - -
-   [0xAC] = { RES, 5, REG_H }, // | 2--8 | - - - -
-   [0xAD] = { RES, 5, REG_L }, // | 2--8 | - - - -
-   [0xAF] = { RES, 5, REG_A }, // | 2--8 | - - - -
-   [0xB0] = { RES, 6, REG_B }, // | 2--8 | - - - -
-   [0xB1] = { RES, 6, REG_C }, // | 2--8 | - - - -
-   [0xB2] = { RES, 6, REG_D }, // | 2--8 | - - - -
-   [0xB3] = { RES, 6, REG_E }, // | 2--8 | - - - -
-   [0xB4] = { RES, 6, REG_H }, // | 2--8 | - - - -
-   [0xB5] = { RES, 6, REG_L }, // | 2--8 | - - - -
-   [0xB7] = { RES, 6, REG_A }, // | 2--8 | - - - -
-   [0xB8] = { RES, 7, REG_B }, // | 2--8 | - - - -
-   [0xB9] = { RES, 7, REG_C }, // | 2--8 | - - - -
-   [0xBA] = { RES, 7, REG_D }, // | 2--8 | - - - -
-   [0xBB] = { RES, 7, REG_E }, // | 2--8 | - - - -
-   [0xBC] = { RES, 7, REG_H }, // | 2--8 | - - - -
-   [0xBD] = { RES, 7, REG_L }, // | 2--8 | - - - -
-   [0xBF] = { RES, 7, REG_A }, // | 2--8 | - - - -
-   [0x86] = { RES, 0, MEM_REG_HL }, // | 2--16 | - - - -
-   [0x8E] = { RES, 1, MEM_REG_HL }, // | 2--16 | - - - -
-   [0x96] = { RES, 2, MEM_REG_HL }, // | 2--16 | - - - -
-   [0x9E] = { RES, 3, MEM_REG_HL }, // | 2--16 | - - - -
-   [0xA6] = { RES, 4, MEM_REG_HL }, // | 2--16 | - - - -
-   [0xAE] = { RES, 5, MEM_REG_HL }, // | 2--16 | - - - -
-   [0xB6] = { RES, 6, MEM_REG_HL }, // | 2--16 | - - - -
-   [0xBE] = { RES, 7, MEM_REG_HL }, // | 2--16 | - - - -
+  // Reset bit (RES) instruction 
+   [0x80] = { resFunction, 0, REG_B }, // | 2--8 | - - - -
+   [0x81] = { resFunction, 0, REG_C }, // | 2--8 | - - - -
+   [0x82] = { resFunction, 0, REG_D }, // | 2--8 | - - - -
+   [0x83] = { resFunction, 0, REG_E }, // | 2--8 | - - - -
+   [0x84] = { resFunction, 0, REG_H }, // | 2--8 | - - - -
+   [0x85] = { resFunction, 0, REG_L }, // | 2--8 | - - - -
+   [0x87] = { resFunction, 0, REG_A }, // | 2--8 | - - - -
+   [0x88] = { resFunction, 1, REG_B }, // | 2--8 | - - - -
+   [0x89] = { resFunction, 1, REG_C }, // | 2--8 | - - - -
+   [0x8A] = { resFunction, 1, REG_D }, // | 2--8 | - - - -
+   [0x8B] = { resFunction, 1, REG_E }, // | 2--8 | - - - -
+   [0x8C] = { resFunction, 1, REG_H }, // | 2--8 | - - - -
+   [0x8D] = { resFunction, 1, REG_L }, // | 2--8 | - - - -
+   [0x8F] = { resFunction, 1, REG_A }, // | 2--8 | - - - -
+   [0x90] = { resFunction, 2, REG_B }, // | 2--8 | - - - -
+   [0x91] = { resFunction, 2, REG_C }, // | 2--8 | - - - -
+   [0x92] = { resFunction, 2, REG_D }, // | 2--8 | - - - -
+   [0x93] = { resFunction, 2, REG_E }, // | 2--8 | - - - -
+   [0x94] = { resFunction, 2, REG_H }, // | 2--8 | - - - -
+   [0x95] = { resFunction, 2, REG_L }, // | 2--8 | - - - -
+   [0x97] = { resFunction, 2, REG_A }, // | 2--8 | - - - -
+   [0x98] = { resFunction, 3, REG_B }, // | 2--8 | - - - -
+   [0x99] = { resFunction, 3, REG_C }, // | 2--8 | - - - -
+   [0x9A] = { resFunction, 3, REG_D }, // | 2--8 | - - - -
+   [0x9B] = { resFunction, 3, REG_E }, // | 2--8 | - - - -
+   [0x9C] = { resFunction, 3, REG_H }, // | 2--8 | - - - -
+   [0x9D] = { resFunction, 3, REG_L }, // | 2--8 | - - - -
+   [0x9F] = { resFunction, 3, REG_A }, // | 2--8 | - - - -
+   [0xA0] = { resFunction, 4, REG_B }, // | 2--8 | - - - -
+   [0xA1] = { resFunction, 4, REG_C }, // | 2--8 | - - - -
+   [0xA2] = { resFunction, 4, REG_D }, // | 2--8 | - - - -
+   [0xA3] = { resFunction, 4, REG_E }, // | 2--8 | - - - -
+   [0xA4] = { resFunction, 4, REG_H }, // | 2--8 | - - - -
+   [0xA5] = { resFunction, 4, REG_L }, // | 2--8 | - - - -
+   [0xA7] = { resFunction, 4, REG_A }, // | 2--8 | - - - -
+   [0xA8] = { resFunction, 5, REG_B }, // | 2--8 | - - - -
+   [0xA9] = { resFunction, 5, REG_C }, // | 2--8 | - - - -
+   [0xAA] = { resFunction, 5, REG_D }, // | 2--8 | - - - -
+   [0xAB] = { resFunction, 5, REG_E }, // | 2--8 | - - - -
+   [0xAC] = { resFunction, 5, REG_H }, // | 2--8 | - - - -
+   [0xAD] = { resFunction, 5, REG_L }, // | 2--8 | - - - -
+   [0xAF] = { resFunction, 5, REG_A }, // | 2--8 | - - - -
+   [0xB0] = { resFunction, 6, REG_B }, // | 2--8 | - - - -
+   [0xB1] = { resFunction, 6, REG_C }, // | 2--8 | - - - -
+   [0xB2] = { resFunction, 6, REG_D }, // | 2--8 | - - - -
+   [0xB3] = { resFunction, 6, REG_E }, // | 2--8 | - - - -
+   [0xB4] = { resFunction, 6, REG_H }, // | 2--8 | - - - -
+   [0xB5] = { resFunction, 6, REG_L }, // | 2--8 | - - - -
+   [0xB7] = { resFunction, 6, REG_A }, // | 2--8 | - - - -
+   [0xB8] = { resFunction, 7, REG_B }, // | 2--8 | - - - -
+   [0xB9] = { resFunction, 7, REG_C }, // | 2--8 | - - - -
+   [0xBA] = { resFunction, 7, REG_D }, // | 2--8 | - - - -
+   [0xBB] = { resFunction, 7, REG_E }, // | 2--8 | - - - -
+   [0xBC] = { resFunction, 7, REG_H }, // | 2--8 | - - - -
+   [0xBD] = { resFunction, 7, REG_L }, // | 2--8 | - - - -
+   [0xBF] = { resFunction, 7, REG_A }, // | 2--8 | - - - -
+   [0x86] = { resFunction, 0, MEM_REG_HL }, // | 2--16 | - - - -
+   [0x8E] = { resFunction, 1, MEM_REG_HL }, // | 2--16 | - - - -
+   [0x96] = { resFunction, 2, MEM_REG_HL }, // | 2--16 | - - - -
+   [0x9E] = { resFunction, 3, MEM_REG_HL }, // | 2--16 | - - - -
+   [0xA6] = { resFunction, 4, MEM_REG_HL }, // | 2--16 | - - - -
+   [0xAE] = { resFunction, 5, MEM_REG_HL }, // | 2--16 | - - - -
+   [0xB6] = { resFunction, 6, MEM_REG_HL }, // | 2--16 | - - - -
+   [0xBE] = { resFunction, 7, MEM_REG_HL }, // | 2--16 | - - - -
    
    
  
 
-   [0xC0] = { SET, 0, REG_B }, // | 2--8 | - - - -
-   [0xC1] = { SET, 0, REG_C }, // | 2--8 | - - - -
-   [0xC2] = { SET, 0, REG_D }, // | 2--8 | - - - -
-   [0xC3] = { SET, 0, REG_E }, // | 2--8 | - - - -
-   [0xC4] = { SET, 0, REG_H }, // | 2--8 | - - - -
-   [0xC5] = { SET, 0, REG_L }, // | 2--8 | - - - -
-   [0xC7] = { SET, 0, REG_A }, // | 2--8 | - - - -
-   [0xC8] = { SET, 1, REG_B }, // | 2--8 | - - - -
-   [0xC9] = { SET, 1, REG_C }, // | 2--8 | - - - -
-   [0xCA] = { SET, 1, REG_D }, // | 2--8 | - - - -
-   [0xCB] = { SET, 1, REG_E }, // | 2--8 | - - - -
-   [0xCC] = { SET, 1, REG_H }, // | 2--8 | - - - -
-   [0xCD] = { SET, 1, REG_L }, // | 2--8 | - - - -
-   [0xCF] = { SET, 1, REG_A }, // | 2--8 | - - - -
-   [0xD0] = { SET, 2, REG_B }, // | 2--8 | - - - -
-   [0xD1] = { SET, 2, REG_C }, // | 2--8 | - - - -
-   [0xD2] = { SET, 2, REG_D }, // | 2--8 | - - - -
-   [0xD3] = { SET, 2, REG_E }, // | 2--8 | - - - -
-   [0xD4] = { SET, 2, REG_H }, // | 2--8 | - - - -
-   [0xD5] = { SET, 2, REG_L }, // | 2--8 | - - - -
-   [0xD7] = { SET, 2, REG_A }, // | 2--8 | - - - -
-   [0xD8] = { SET, 3, REG_B }, // | 2--8 | - - - -
-   [0xD9] = { SET, 3, REG_C }, // | 2--8 | - - - -
-   [0xDA] = { SET, 3, REG_D }, // | 2--8 | - - - -
-   [0xDB] = { SET, 3, REG_E }, // | 2--8 | - - - -
-   [0xDC] = { SET, 3, REG_H }, // | 2--8 | - - - -
-   [0xDD] = { SET, 3, REG_L }, // | 2--8 | - - - -
-   [0xDF] = { SET, 3, REG_A }, // | 2--8 | - - - -
-   [0xE0] = { SET, 4, REG_B }, // | 2--8 | - - - -
-   [0xE1] = { SET, 4, REG_C }, // | 2--8 | - - - -
-   [0xE2] = { SET, 4, REG_D }, // | 2--8 | - - - -
-   [0xE3] = { SET, 4, REG_E }, // | 2--8 | - - - -
-   [0xE4] = { SET, 4, REG_H }, // | 2--8 | - - - -
-   [0xE5] = { SET, 4, REG_L }, // | 2--8 | - - - -
-   [0xE7] = { SET, 4, REG_A }, // | 2--8 | - - - -
-   [0xE8] = { SET, 5, REG_B }, // | 2--8 | - - - -
-   [0xE9] = { SET, 5, REG_C }, // | 2--8 | - - - -
-   [0xEA] = { SET, 5, REG_D }, // | 2--8 | - - - -
-   [0xEB] = { SET, 5, REG_E }, // | 2--8 | - - - -
-   [0xEC] = { SET, 5, REG_H }, // | 2--8 | - - - -
-   [0xED] = { SET, 5, REG_L }, // | 2--8 | - - - -
-   [0xEF] = { SET, 5, REG_A }, // | 2--8 | - - - -
-   [0xF0] = { SET, 6, REG_B }, // | 2--8 | - - - -
-   [0xF1] = { SET, 6, REG_C }, // | 2--8 | - - - -
-   [0xF2] = { SET, 6, REG_D }, // | 2--8 | - - - -
-   [0xF3] = { SET, 6, REG_E }, // | 2--8 | - - - -
-   [0xF4] = { SET, 6, REG_H }, // | 2--8 | - - - -
-   [0xF5] = { SET, 6, REG_L }, // | 2--8 | - - - -
-   [0xF7] = { SET, 6, REG_A }, // | 2--8 | - - - -
-   [0xF8] = { SET, 7, REG_B }, // | 2--8 | - - - -
-   [0xF9] = { SET, 7, REG_C }, // | 2--8 | - - - -
-   [0xFA] = { SET, 7, REG_D }, // | 2--8 | - - - -
-   [0xFB] = { SET, 7, REG_E }, // | 2--8 | - - - -
-   [0xFC] = { SET, 7, REG_H }, // | 2--8 | - - - -
-   [0xFD] = { SET, 7, REG_L }, // | 2--8 | - - - -
-   [0xFF] = { SET, 7, REG_A }, // | 2--8 | - - - -
-   [0xC6] = { SET, 0, MEM_REG_HL }, // | 2--16 | - - - -
-   [0xCE] = { SET, 1, MEM_REG_HL }, // | 2--16 | - - - -
-   [0xD6] = { SET, 2, MEM_REG_HL }, // | 2--16 | - - - -
-   [0xDE] = { SET, 3, MEM_REG_HL }, // | 2--16 | - - - -
-   [0xE6] = { SET, 4, MEM_REG_HL }, // | 2--16 | - - - -
-   [0xEE] = { SET, 5, MEM_REG_HL }, // | 2--16 | - - - -
-   [0xF6] = { SET, 6, MEM_REG_HL }, // | 2--16 | - - - -
-   [0xFE] = { SET, 7, MEM_REG_HL }, // | 2--16 | - - - -
+  // Set bit (SET) instruction 
+   [0xC0] = { setFunction, 0, REG_B }, // | 2--8 | - - - -
+   [0xC1] = { setFunction, 0, REG_C }, // | 2--8 | - - - -
+   [0xC2] = { setFunction, 0, REG_D }, // | 2--8 | - - - -
+   [0xC3] = { setFunction, 0, REG_E }, // | 2--8 | - - - -
+   [0xC4] = { setFunction, 0, REG_H }, // | 2--8 | - - - -
+   [0xC5] = { setFunction, 0, REG_L }, // | 2--8 | - - - -
+   [0xC7] = { setFunction, 0, REG_A }, // | 2--8 | - - - -
+   [0xC8] = { setFunction, 1, REG_B }, // | 2--8 | - - - -
+   [0xC9] = { setFunction, 1, REG_C }, // | 2--8 | - - - -
+   [0xCA] = { setFunction, 1, REG_D }, // | 2--8 | - - - -
+   [0xCB] = { setFunction, 1, REG_E }, // | 2--8 | - - - -
+   [0xCC] = { setFunction, 1, REG_H }, // | 2--8 | - - - -
+   [0xCD] = { setFunction, 1, REG_L }, // | 2--8 | - - - -
+   [0xCF] = { setFunction, 1, REG_A }, // | 2--8 | - - - -
+   [0xD0] = { setFunction, 2, REG_B }, // | 2--8 | - - - -
+   [0xD1] = { setFunction, 2, REG_C }, // | 2--8 | - - - -
+   [0xD2] = { setFunction, 2, REG_D }, // | 2--8 | - - - -
+   [0xD3] = { setFunction, 2, REG_E }, // | 2--8 | - - - -
+   [0xD4] = { setFunction, 2, REG_H }, // | 2--8 | - - - -
+   [0xD5] = { setFunction, 2, REG_L }, // | 2--8 | - - - -
+   [0xD7] = { setFunction, 2, REG_A }, // | 2--8 | - - - -
+   [0xD8] = { setFunction, 3, REG_B }, // | 2--8 | - - - -
+   [0xD9] = { setFunction, 3, REG_C }, // | 2--8 | - - - -
+   [0xDA] = { setFunction, 3, REG_D }, // | 2--8 | - - - -
+   [0xDB] = { setFunction, 3, REG_E }, // | 2--8 | - - - -
+   [0xDC] = { setFunction, 3, REG_H }, // | 2--8 | - - - -
+   [0xDD] = { setFunction, 3, REG_L }, // | 2--8 | - - - -
+   [0xDF] = { setFunction, 3, REG_A }, // | 2--8 | - - - -
+   [0xE0] = { setFunction, 4, REG_B }, // | 2--8 | - - - -
+   [0xE1] = { setFunction, 4, REG_C }, // | 2--8 | - - - -
+   [0xE2] = { setFunction, 4, REG_D }, // | 2--8 | - - - -
+   [0xE3] = { setFunction, 4, REG_E }, // | 2--8 | - - - -
+   [0xE4] = { setFunction, 4, REG_H }, // | 2--8 | - - - -
+   [0xE5] = { setFunction, 4, REG_L }, // | 2--8 | - - - -
+   [0xE7] = { setFunction, 4, REG_A }, // | 2--8 | - - - -
+   [0xE8] = { setFunction, 5, REG_B }, // | 2--8 | - - - -
+   [0xE9] = { setFunction, 5, REG_C }, // | 2--8 | - - - -
+   [0xEA] = { setFunction, 5, REG_D }, // | 2--8 | - - - -
+   [0xEB] = { setFunction, 5, REG_E }, // | 2--8 | - - - -
+   [0xEC] = { setFunction, 5, REG_H }, // | 2--8 | - - - -
+   [0xED] = { setFunction, 5, REG_L }, // | 2--8 | - - - -
+   [0xEF] = { setFunction, 5, REG_A }, // | 2--8 | - - - -
+   [0xF0] = { setFunction, 6, REG_B }, // | 2--8 | - - - -
+   [0xF1] = { setFunction, 6, REG_C }, // | 2--8 | - - - -
+   [0xF2] = { setFunction, 6, REG_D }, // | 2--8 | - - - -
+   [0xF3] = { setFunction, 6, REG_E }, // | 2--8 | - - - -
+   [0xF4] = { setFunction, 6, REG_H }, // | 2--8 | - - - -
+   [0xF5] = { setFunction, 6, REG_L }, // | 2--8 | - - - -
+   [0xF7] = { setFunction, 6, REG_A }, // | 2--8 | - - - -
+   [0xF8] = { setFunction, 7, REG_B }, // | 2--8 | - - - -
+   [0xF9] = { setFunction, 7, REG_C }, // | 2--8 | - - - -
+   [0xFA] = { setFunction, 7, REG_D }, // | 2--8 | - - - -
+   [0xFB] = { setFunction, 7, REG_E }, // | 2--8 | - - - -
+   [0xFC] = { setFunction, 7, REG_H }, // | 2--8 | - - - -
+   [0xFD] = { setFunction, 7, REG_L }, // | 2--8 | - - - -
+   [0xFF] = { setFunction, 7, REG_A }, // | 2--8 | - - - -
+   [0xC6] = { setFunction, 0, MEM_REG_HL }, // | 2--16 | - - - -
+   [0xCE] = { setFunction, 1, MEM_REG_HL }, // | 2--16 | - - - -
+   [0xD6] = { setFunction, 2, MEM_REG_HL }, // | 2--16 | - - - -
+   [0xDE] = { setFunction, 3, MEM_REG_HL }, // | 2--16 | - - - -
+   [0xE6] = { setFunction, 4, MEM_REG_HL }, // | 2--16 | - - - -
+   [0xEE] = { setFunction, 5, MEM_REG_HL }, // | 2--16 | - - - -
+   [0xF6] = { setFunction, 6, MEM_REG_HL }, // | 2--16 | - - - -
+   [0xFE] = { setFunction, 7, MEM_REG_HL }, // | 2--16 | - - - -
 };
