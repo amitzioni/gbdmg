@@ -2,10 +2,10 @@
 
 - [X] Implement CPU Registers + CPU Flags 
 - [ ] Implement Memory Map
-    - [ ] No MBC
+    - [X] No MBC
     - [ ] MBC 1
     - [ ] MBC 3 
-- [ ] Implement CPU Instructions
+- [X] Implement CPU Instructions
 - [ ] Implement Graphics
 - [ ] Implement Sound
 - [ ] Implement Joypad Input
