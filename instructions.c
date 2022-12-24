@@ -406,7 +406,7 @@ const instruction cb_inst[0x100] = {
    
    
 
-  // Shift left logically (SRL) instruction 
+  // Shift right logically (SRL) instruction 
    [0x38] = { srlFunction, REG_B, EMPTY}, // | 2--8 | Z 0 0 C
    [0x39] = { srlFunction, REG_C, EMPTY}, // | 2--8 | Z 0 0 C
    [0x3A] = { srlFunction, REG_D, EMPTY}, // | 2--8 | Z 0 0 C
