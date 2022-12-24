@@ -2,6 +2,7 @@
 #include "instructions.h"
 #include "cpu.h"
 
+
 // Normal Instructions         
 const instruction normal_inst[0x100] = {
     // Load (LD) instructions
