@@ -725,29 +725,25 @@ void setFunction(operand op1, operand op2){
 }
 
 
-void startCPU(void){
+void cpuTick(void){
     Byte inst_code = fetchByteByPC();
     operand op1;
     operand op2;
 
-    while(1)
+    if(inst_code == 0xCB)
     {
-        if(inst_code == 0xCB)
-        {
-            inst_code = fetchByteByPC();
-            op1 = cb_inst[inst_code].op1;
-            op2 = cb_inst[inst_code].op2;
-            cb_inst[inst_code].op_func(op1, op2);
-        }
-        else
-        {
-            op1 = normal_inst[inst_code].op1;
-            op2 = normal_inst[inst_code].op2;
-            normal_inst[inst_code].op_func(op1, op2);
-        }
-
         inst_code = fetchByteByPC();
+        op1 = cb_inst[inst_code].op1;
+        op2 = cb_inst[inst_code].op2;
+        cb_inst[inst_code].op_func(op1, op2);
     }
+    else
+    {
+        op1 = normal_inst[inst_code].op1;
+        op2 = normal_inst[inst_code].op2;
+        normal_inst[inst_code].op_func(op1, op2);
+    }
+
 }
 
 

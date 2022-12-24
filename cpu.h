@@ -5,6 +5,6 @@
 
 #include "operands.h"
 
-void startCPU(void);
+void cpuTick(void);
 #endif
 
