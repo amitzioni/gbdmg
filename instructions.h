@@ -12,6 +12,8 @@ typedef struct{
 
 extern const instruction normal_inst[0x100];
 extern const instruction cb_inst[0x100];
+extern const char *str_normal_inst[0x100];
+extern const char *str_cb_inst[0x100];
 
 void ldFunction(operand op1, operand op2);
 void incFunction(operand op1, operand op2);
