@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include "memory.h"
 #include "cpu.h"
@@ -26,7 +27,6 @@ int main(int argc, char **argv){
     }
 
     initMemory(fp);
-
     while(1)
     {
         cpuTick();
