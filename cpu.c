@@ -729,18 +729,21 @@ void cpuTick(void){
     Byte inst_code = fetchByteByPC();
     operand op1;
     operand op2;
-
     if(inst_code == 0xCB)
     {
         inst_code = fetchByteByPC();
         op1 = cb_inst[inst_code].op1;
         op2 = cb_inst[inst_code].op2;
+        printf("0x%.4X -> 0x%.2X :", getWordRegister(REG_PC)-2, inst_code);
+        printf("%s\n", str_cb_inst[inst_code]);
         cb_inst[inst_code].op_func(op1, op2);
     }
     else
     {
         op1 = normal_inst[inst_code].op1;
         op2 = normal_inst[inst_code].op2;
+        printf("0x%.4X -> 0x%.2X :", getWordRegister(REG_PC)-1, inst_code);
+        printf("%s\n", str_normal_inst[inst_code]);
         normal_inst[inst_code].op_func(op1, op2);
     }
 
