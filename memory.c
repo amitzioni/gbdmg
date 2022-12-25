@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include "defs.h"
 #include "hw_regs.h"
@@ -51,7 +52,7 @@ typedef enum{
     MBC3,
 }mbc;
 
-char *rom_title;
+char rom_title[17];
 static mbc mbc_type;
 static int num_rom_banks = 0;
 static int num_ram_banks = 0;
@@ -70,11 +71,6 @@ void extractSpecs(FILE *rom_file)
 
     // extract ROM title
     fseek(rom_file, ROM_TITLE_ADDR, SEEK_SET);
-    if((rom_title = malloc(sizeof(char) * 17)) == NULL)
-    {
-        fprintf(stderr, "Error in %s: Could not allocate memory for the ROM title\n", __func__);
-        exit(EXIT_FAILURE);
-    }
 
     fread(rom_title, 16, 1, rom_file);
     rom_title[16] = '\0';
@@ -345,7 +341,6 @@ void controlMBC3(Word addr, Byte val){
 }
 
 void setMemory(Word addr, Byte val){
-
     // Make sure that there isn't an attempt to write to external ram when
     // there is no external ram present
     assert(!(num_ram_banks == 0 && (addr >= 0xA000 && addr <= 0xBFFF)));
@@ -357,6 +352,7 @@ void setMemory(Word addr, Byte val){
     // Make sure that if there's no MBC then there should be no attempt 
     // to write into the ROM area
     assert(!((mbc_type == NO_MBC) && (addr >= 0x0000 && addr <= 0x7FFF)));
+    
 
     if(addr >= 0x0000 && addr <= 0x7FFF)
     {
@@ -368,3 +364,6 @@ void setMemory(Word addr, Byte val){
 
     memory_map[addr] = val;
 }
+
+
+
