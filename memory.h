@@ -10,6 +10,7 @@ extern char rom_title[16];
 void initMemory(FILE *rom_file);
 Byte getMemory(Word addr);
 void setMemory(Word addr, Byte val);
+Byte *getMemoryPointer(Word addr);
 
 
 

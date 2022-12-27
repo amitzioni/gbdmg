@@ -366,5 +366,9 @@ void setMemory(Word addr, Byte val){
     memory_map[addr] = val;
 }
 
-
+Byte *getMemoryPointer(Word addr){
+    assert((addr >= 0x8000 && addr <= 0x9FFF) || 
+            (addr >= 0xFE00 && addr <= 0xFE9F));
+    return (memory_map + addr);
+}
 
