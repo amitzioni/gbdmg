@@ -359,13 +359,8 @@ void setMemory(Word addr, Byte val){
             controlMBC1(addr, val);
         else if(mbc_type == MBC3)
             controlMBC3(addr, val);
-        else if(mbc_type == NO_MBC && addr == 0x2000) // A Quirk that makes even a NO_MBC Cartridge to "write" to ROM
-            return;
-        else 
-        {
-            fprintf(stderr, "Error in %s: could not determine why the attempt to write to rom", __func__);
-            exit(EXIT_FAILURE);
-        }
+        else if(mbc_type == NO_MBC)
+            fprintf(stderr, "Warning in %s: An attempt writing into ROM to address 0x%.4X without an MBC\n", __func__, addr);
     }
 
     memory_map[addr] = val;
