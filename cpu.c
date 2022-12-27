@@ -15,7 +15,7 @@
 // Utility Functions
 
 
-static bool interrupt_master_flag = false;
+static bool interrupt_master_flag = true;
 
 Byte fetchByteByPC(void){
     Word addr = getWordRegister(REG_PC);
@@ -239,10 +239,10 @@ void decFunction(operand op1, operand op2){
     if(isByteOperand(op1))
     {
         Byte op1_val = getByteOperand(op1);
-        setFlag(FLAG_N, true);
-        setFlag(FLAG_Z, (op1_val - 1) == 0);
-        setFlag(FLAG_H, ((op1_val & 0xF) - 1)& 0x10);
-        setByteOperand(op1, op1_val - 1);
+            setFlag(FLAG_N, true);
+            setFlag(FLAG_Z, (op1_val - 1) == 0);
+            setFlag(FLAG_H, ((op1_val & 0xF) - 1)& 0x10);
+            setByteOperand(op1, op1_val - 1);
 
     }
     else if(isWordOperand(op1))
@@ -406,15 +406,17 @@ void jpFunction(operand op1, operand op2){
 }
 
 void jrFunction(operand op1, operand op2){
-    Word addr = getWordRegister(REG_PC);
     SignedByte simm8 = fetchByteByPC();
+    Word addr = getWordRegister(REG_PC);
 
     if((op2 == EMPTY) || \
       (op1 == CON_Z && getFlag(FLAG_Z)) || \
       (op1 == CON_C && getFlag(FLAG_C)) || \
       (op1 == CON_NZ && getFlag(FLAG_N) && getFlag(FLAG_Z)) || \
       (op1 == CON_NC && getFlag(FLAG_N) && getFlag(FLAG_C)))
+    {
         setWordRegister(REG_PC, addr + simm8);
+    }
 
 }
 
@@ -424,8 +426,8 @@ void pushFunction(operand op1, operand op2){
     Byte lsb = op1_val & 0xFF;
     Byte msb = (op1_val >> 8) & 0xFF;
 
-    setMemory(msb, stackp - 1);
-    setMemory(lsb, stackp - 2);
+    setMemory(stackp - 1 ,msb);
+    setMemory(stackp - 2 ,lsb);
 
     setWordRegister(REG_SP, stackp - 2);
 
@@ -438,11 +440,11 @@ void popFunction(operand op1, operand op2){
     Byte msb = getMemory(stackp + 1);
     Word to_assign = (((Word)msb) << 8) | lsb;
     setWordRegister(op1, to_assign);
+    setWordRegister(REG_SP, stackp + 2);
 
 }
 
 void callFunction(operand op1, operand op2){
-    pushFunction(REG_PC, EMPTY);
     Word addr = fetchWordByPC();
 
     if((op2 == EMPTY) || \
@@ -450,16 +452,21 @@ void callFunction(operand op1, operand op2){
       (op1 == CON_C && getFlag(FLAG_C)) || \
       (op1 == CON_NZ && getFlag(FLAG_N) && getFlag(FLAG_Z)) || \
       (op1 == CON_NC && getFlag(FLAG_N) && getFlag(FLAG_C)))
+    {
+        pushFunction(REG_PC, EMPTY);
         setWordRegister(REG_PC, addr);
+    }
 }
 
 void retFunction(operand op1, operand op2){
-    if((op2 == EMPTY) || \
+    if((op1 == EMPTY) || \
       (op1 == CON_Z && getFlag(FLAG_Z)) || \
       (op1 == CON_C && getFlag(FLAG_C)) || \
       (op1 == CON_NZ && getFlag(FLAG_N) && getFlag(FLAG_Z)) || \
       (op1 == CON_NC && getFlag(FLAG_N) && getFlag(FLAG_C)))
+    {
         popFunction(REG_PC, EMPTY);
+    }
 
 }
 
@@ -634,13 +641,13 @@ void rraFunction(operand op1, operand op2){
 }
 
 void rlcaFunction(operand op1, operand op2){
-    rlcaFunction(REG_A, EMPTY);
+    rlcFunction(REG_A, EMPTY);
     setFlag(FLAG_Z, false);
 
 }
 
 void rrcaFunction(operand op1, operand op2){
-    rrcaFunction(REG_A, EMPTY);
+    rrcFunction(REG_A, EMPTY);
     setFlag(FLAG_Z, false);
 
 }
@@ -725,7 +732,82 @@ void setFunction(operand op1, operand op2){
 }
 
 
+void pushStack(Word addr){
+
+    Word stackp = getWordRegister(REG_SP);
+    Byte lsb = addr & 0xFF;
+    Byte msb = (addr >> 8) & 0xFF;
+
+    setMemory(stackp - 1 ,msb);
+    setMemory(stackp - 2 ,lsb);
+
+    setWordRegister(REG_SP, stackp - 2);
+}
+
+void callInterrupt(int bit_num){
+    printf("Call interrupt\n");
+    pushStack(getWordRegister(REG_PC));
+    Word addr;
+    switch(bit_num)
+    {
+        case 0:
+            addr = 0x0040;
+            break;
+            
+        case 1:
+            addr = 0x0048;
+            break;
+            
+        case 2:
+            addr = 0x0050;
+            break;
+            
+        case 3:
+            addr = 0x0058;
+            break;
+            
+        case 4:
+            addr = 0x0060;
+            break;
+            
+    }
+    setWordRegister(REG_PC, addr);
+}
+void checkInterrupt(void){
+    Byte intr_ie = getMemory(0xFFFF);
+    Byte intr_if = getMemory(0xFF0F);
+    for(int i = 0; i < 5; i++)
+    {
+        int ie_bit = intr_ie & (1 << i);
+        int if_bit = intr_if & (1 << i);
+        if(ie_bit && if_bit)
+        {
+            intr_if ^= (1 << i);
+            setMemory(0xFF0F, intr_if);
+            callInterrupt(i);
+        }
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void cpuTick(void){
+    if(interrupt_master_flag == true)
+        checkInterrupt();
     Byte inst_code = fetchByteByPC();
     operand op1;
     operand op2;
@@ -734,24 +816,27 @@ void cpuTick(void){
         inst_code = fetchByteByPC();
         op1 = cb_inst[inst_code].op1;
         op2 = cb_inst[inst_code].op2;
-        printf("0x%.4X -> 0x%.2X :", getWordRegister(REG_PC)-2, inst_code);
+        printf("\n0x%.4X -> 0x%.2X :", getWordRegister(REG_PC)-2, inst_code);
         printf("%s\n", str_cb_inst[inst_code]);
+        printf("\nBefore the operation:\n");
         cb_inst[inst_code].op_func(op1, op2);
+        printf("\nAfter the operation:\n");
+        printf("#################################################\n");
+
+
     }
     else
     {
         op1 = normal_inst[inst_code].op1;
         op2 = normal_inst[inst_code].op2;
-        printf("0x%.4X -> 0x%.2X :", getWordRegister(REG_PC)-1, inst_code);
+        printf("\n0x%.4X -> 0x%.2X :", getWordRegister(REG_PC)-1, inst_code);
         printf("%s\n", str_normal_inst[inst_code]);
+        printf("\nBefore the operation:\n");
         normal_inst[inst_code].op_func(op1, op2);
+        printf("\nAfter the operation:\n");
+        printf("#################################################\n");
     }
 
 }
-
-
-
-
-
 
 
