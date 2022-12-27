@@ -15,37 +15,25 @@
 #define ROM_BANK_SIZE_IN_BYTES 16384
 #define RAM_BANK_SIZE_IN_BYTES  8192
 
-#define IS_PROHIBITED_ADDR(A) ((((A) >= 0xE000) && ((A) <= 0xFDFF)) || (((A) >= 0xFEA0) && ((A) <= 0xFEFF)))
 
 /*
 
    The Gameboy DMG Memory Map:
 
 0000 - 3FFF : 16 KiB ROM bank 00
-
 4000 - 7FFF : 16 KiB ROM Bank 01~NN, switchable bank via MBC (if any)
-
 8000 - 9FFF : 8 KiB Video RAM (VRAM)
-
 A000 - BFFF : 8 KiB External RAM, switchable bank if any
-
 C000 - DFFF : 8 KiB Work RAM (WRAM)	
-
-E000 - FDFF : ### PROHIBITED AREA ####
-
+E000 - FDFF : Mirror RAM of C000-DDFF
 FE00 - FE9F : Sprite attribute table (OAM)	
-
 FEA0 - FEFF : ### PROHIBITED AREA ####
-
 FF00 - FF7F : I/O Registers	
-
 FF80 - FFFE : High RAM (HRAM)	
-
 FFFF - FFFF : Interrupt Enable register (IE)	
 
-
-
 */
+
 typedef enum{
     NO_MBC = 0,
     MBC1,
@@ -326,7 +314,7 @@ Byte getMemory(Word addr){
 
     // Make sure that the program not trying to read from prohibited 
     // areas in memory map 
-    assert(!(IS_PROHIBITED_ADDR(addr)));
+
 
     return memory_map[addr];
 }
@@ -347,19 +335,37 @@ void setMemory(Word addr, Byte val){
 
     // Make sure that the program not trying to write to prohibited 
     // areas in memory map 
-    assert(!(IS_PROHIBITED_ADDR(addr)));
 
     // Make sure that if there's no MBC then there should be no attempt 
     // to write into the ROM area
-    assert(!((mbc_type == NO_MBC) && (addr >= 0x0000 && addr <= 0x7FFF)));
+
+    if(addr >= 0xE000 && addr <= 0xFDFF)
+    {
+        memory_map[addr] = val;
+        memory_map[addr-0x1000] = val;
+        return;
+    }
+    if(addr >= 0xD000 && addr <= 0xDDFF)
+    {
+        memory_map[addr] = val;
+        memory_map[addr+0x1000] = val;
+        return;
+    }
     
 
     if(addr >= 0x0000 && addr <= 0x7FFF)
     {
         if(mbc_type == MBC1)
             controlMBC1(addr, val);
-        else
+        else if(mbc_type == MBC3)
             controlMBC3(addr, val);
+        else if(mbc_type == NO_MBC && addr == 0x2000) // A Quirk that makes even a NO_MBC Cartridge to "write" to ROM
+            return;
+        else 
+        {
+            fprintf(stderr, "Error in %s: could not determine why the attempt to write to rom", __func__);
+            exit(EXIT_FAILURE);
+        }
     }
 
     memory_map[addr] = val;
