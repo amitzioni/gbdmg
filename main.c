@@ -6,6 +6,8 @@
 #include <unistd.h>
 
 #include "memory.h"
+#include "hw_regs.h"
+#include "screen.h"
 #include "cpu.h"
 
 
@@ -27,8 +29,12 @@ int main(int argc, char **argv){
     }
 
     initMemory(fp);
+    initGraphics(rom_title);
     while(1)
     {
         cpuTick();
+        if(getMemory(HWR_LCDC) & (1 << 7))
+            drawScreen();
+        
     }
 }
