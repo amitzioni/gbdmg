@@ -2,6 +2,39 @@
 #include "instructions.h"
 #include "cpu.h"
 
+char *str_operands[]= {
+ [REG_A] = "REG_A",
+ [REG_F] = "REG_F",
+ [REG_B] = "REG_B",
+ [REG_C] = "REG_C",
+ [REG_D] = "REG_D",
+ [REG_E] = "REG_E",
+ [REG_H] = "REG_H",
+ [REG_L] = "REG_L",
+ [REG_SP] = "REG_SP",
+ [REG_PC] = "REG_PC",
+ [REG_AF] = "REG_AF",
+ [REG_BC] = "REG_BC ",
+ [REG_DE] = "REG_DE ",
+ [REG_HL] = "REG_HL ",
+ [MEM_REG_BC] = "MEM_REG_BC",
+ [MEM_REG_DE] = "MEM_REG_DE",
+ [MEM_REG_HL] = "MEM_REG_HL",
+ [MEM_IMM16] = "MEM_IMM16",
+ [MEM_REG_C] = "MEM_REG_C",
+ [MEM_IMM8] = "MEM_IMM8",
+ [MEM_REG_HL_PLUS] = "MEM_REG_HL_PLUS",
+ [MEM_REG_HL_MINUS] = "MEM_REG_HL_MINUS",
+ [IMM8] = "IMM8",
+ [SIMM8] = "SIMM8",
+ [IMM16] = "IMM16",
+ [CON_NZ] = "CON_NZ",
+ [CON_Z] = "CON_Z", 
+ [CON_NC] = "CON_NC",
+ [CON_C] = "CON_C", 
+ [REG_SP_PLUS_SIMM8] = "REG_SP_PLUS_SIMM8", 
+ [EMPTY] = "EMPTY",
+};
 
 // Normal Instructions         
 const instruction normal_inst[0x100] = {

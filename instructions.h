@@ -4,6 +4,7 @@
 
 #include "operands.h"
 
+extern char *str_operands[];
 typedef struct{
     void (*op_func)(operand,operand);
     operand op1;
